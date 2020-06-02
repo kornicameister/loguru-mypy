@@ -10,6 +10,18 @@
     logger.debug('test c={} d={}', 3, 4)
     logger.exception('test e={} ip={ip}', 5, ip='129.22.33.33')
     logger.debug('{}', lambda: 3)
+- case: ok_double_quotes
+  main: |
+    from loguru import logger
+
+    logger.info("test")
+    logger.info("test {}", "a")
+    logger.warning("warn {a} {}", 3 / 4, a=1)
+- case: ok_mixed_quotes
+  main: |
+    from loguru import logger
+
+    logger.error("error '{}'", 3)
 - case: with_alias
   main: |
     from datetime import datetime
