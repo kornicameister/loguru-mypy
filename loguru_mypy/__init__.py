@@ -1,21 +1,29 @@
 import string
 import typing as t
 
-from mypy.nodes import LambdaExpr, StrExpr, NameExpr, FuncItem
-from mypy.plugin import MethodContext, Plugin
 from mypy.errorcodes import ErrorCode
-from mypy.types import Type
-
-
-ERROR_BAD_ARG: t.Final[ErrorCode] = ErrorCode(
-    "loguru-logger-arg",
-    "Positional argument of loguru handler is not valid for given message",
-    "loguru",
+from mypy.nodes import (
+    FuncDef,
+    LambdaExpr,
+    RefExpr,
+    StrExpr,
 )
-ERROR_BAD_KWARG: t.Final[ErrorCode] = ErrorCode(
-    "loguru-logger-kwarg",
-    "Named argument of loguru handler is not valid for given message",
-    "loguru",
+from mypy.plugin import (
+    MethodContext,
+    Plugin,
+)
+from mypy.types import Type
+import typing_extensions as te
+
+ERROR_BAD_ARG: te.Final[ErrorCode] = ErrorCode(
+    'logger-arg',
+    'Positional argument of loguru handler is not valid for given message',
+    'loguru',
+)
+ERROR_BAD_KWARG: te.Final[ErrorCode] = ErrorCode(
+    'logger-kwarg',
+    'Named argument of loguru handler is not valid for given message',
+    'loguru',
 )
 
 
@@ -54,16 +62,16 @@ def _loguru_logger_call_handler(ctx: MethodContext) -> Type:
 
     if log_msg_expected_args_count > call_args_count:
         ctx.api.msg.fail(
-            f"Missing {log_msg_expected_args_count - call_args_count} "
-            "positional arguments for log message",
+            f'Missing {log_msg_expected_args_count - call_args_count} '
+            'positional arguments for log message',
             context=log_msg_expr,
             code=ERROR_BAD_ARG,
         )
         return ctx.default_return_type
     elif log_msg_expected_args_count < call_args_count:
         ctx.api.msg.note(
-            f"Expected {log_msg_expected_args_count} but found {call_args_count} "
-            "positional arguments for log message",
+            f'Expected {log_msg_expected_args_count} but found {call_args_count} '
+            'positional arguments for log message',
             context=log_msg_expr,
             code=ERROR_BAD_ARG,
         )
@@ -72,17 +80,14 @@ def _loguru_logger_call_handler(ctx: MethodContext) -> Type:
         for call_pos, call_arg in enumerate(call_args):
             if isinstance(call_arg, LambdaExpr) and call_arg.arguments:
                 ctx.api.msg.fail(
-                    f"Expected 0 arguments for <lambda>: {call_pos} arg ",
+                    f'Expected 0 arguments for <lambda>: {call_pos} arg ',
                     context=call_arg,
                     code=ERROR_BAD_ARG,
                 )
-            elif (
-                isinstance(call_arg, NameExpr)
-                and isinstance(call_arg.node, FuncItem)
-                and call_arg.node.arguments
-            ):
+            elif isinstance(call_arg, RefExpr) and isinstance(
+                    call_arg.node, FuncDef) and call_arg.node.arguments:
                 ctx.api.msg.fail(
-                    f"Expected 0 arguments for {call_arg.node.fullname}: {call_arg}",
+                    f'Expected 0 arguments for {call_arg.node.fullname}: {call_arg}',
                     context=call_arg,
                     code=ERROR_BAD_ARG,
                 )
@@ -91,31 +96,29 @@ def _loguru_logger_call_handler(ctx: MethodContext) -> Type:
         maybe_kwarg_expr = call_kwargs.pop(log_msg_kwarg, None)
         if maybe_kwarg_expr is None:
             ctx.api.msg.fail(
-                f"{log_msg_kwarg} keyword argument is missing",
+                f'{log_msg_kwarg} keyword argument is missing',
                 context=log_msg_expr,
                 code=ERROR_BAD_KWARG,
             )
             return ctx.default_return_type
         elif isinstance(maybe_kwarg_expr, LambdaExpr) and maybe_kwarg_expr.arguments:
             ctx.api.msg.fail(
-                f"Expected 0 arguments for <lambda>: {log_msg_kwarg} kwarg ",
+                f'Expected 0 arguments for <lambda>: {log_msg_kwarg} kwarg ',
                 context=maybe_kwarg_expr,
                 code=ERROR_BAD_KWARG,
             )
-        elif (
-            isinstance(maybe_kwarg_expr, NameExpr)
-            and isinstance(maybe_kwarg_expr.node, FuncItem)
-            and maybe_kwarg_expr.node.arguments
-        ):
+        elif isinstance(maybe_kwarg_expr, RefExpr) and isinstance(
+                maybe_kwarg_expr.node, FuncDef) and maybe_kwarg_expr.node.arguments:
             ctx.api.msg.fail(
-                f"Expected 0 arguments for {maybe_kwarg_expr.node.fullname}: {log_msg_kwarg}",
+                'Expected 0 arguments for '
+                f'{maybe_kwarg_expr.node.fullname}: {log_msg_kwarg}',
                 context=maybe_kwarg_expr,
                 code=ERROR_BAD_KWARG,
             )
 
     for extra_kwarg_name in call_kwargs:
         ctx.api.msg.fail(
-            f"{extra_kwarg_name} keyword argument not found in log message",
+            f'{extra_kwarg_name} keyword argument not found in log message',
             context=log_msg_expr,
             code=ERROR_BAD_KWARG,
         )
@@ -125,18 +128,19 @@ def _loguru_logger_call_handler(ctx: MethodContext) -> Type:
 
 class LoguruPlugin(Plugin):
     builtin_severities = (
-        "info",
-        "debug",
-        "warning",
-        "error",
-        "exception",
+        'info',
+        'debug',
+        'warning',
+        'error',
+        'exception',
     )
 
     def get_method_hook(
-        self, fullname: str,
+        self,
+        fullname: str,
     ) -> t.Optional[t.Callable[[MethodContext], Type]]:
-        if fullname.startswith("loguru"):
-            _, maybe_severity = fullname.rsplit(".", 1)
+        if fullname.startswith('loguru'):
+            _, maybe_severity = fullname.rsplit('.', 1)
             if maybe_severity in self.builtin_severities:
                 return _loguru_logger_call_handler
         return super().get_method_hook(fullname)
