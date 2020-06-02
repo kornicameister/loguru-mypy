@@ -47,10 +47,10 @@
     logger.error('test {} {} {} {} {}', 11, 22, 33, 44)
     logger.exception('{} {} {}', 1, 2)
   out: |
-    main:3: error: Missing 1 positional arguments for log message  [loguru-logger-arg]
-    main:4: error: Missing 1 positional arguments for log message  [loguru-logger-arg]
-    main:6: error: Missing 1 positional arguments for log message  [loguru-logger-arg]
-    main:7: error: Missing 1 positional arguments for log message  [loguru-logger-arg]
+    main:3: error: Missing 1 positional arguments for log message  [logger-arg]
+    main:4: error: Missing 1 positional arguments for log message  [logger-arg]
+    main:6: error: Missing 1 positional arguments for log message  [logger-arg]
+    main:7: error: Missing 1 positional arguments for log message  [logger-arg]
 - case: extra_kwarg
   main: |
     from loguru import logger
@@ -68,11 +68,11 @@
     except ZeroDivisionError:
       logger.exception('{a} / {b}', a=2, b=0, c=0)
   out: |
-    main:3: error: a keyword argument not found in log message  [loguru-logger-kwarg]
-    main:6: error: b keyword argument not found in log message  [loguru-logger-kwarg]
-    main:8: error: a keyword argument not found in log message  [loguru-logger-kwarg]
-    main:9: error: a keyword argument not found in log message  [loguru-logger-kwarg]
-    main:14: error: c keyword argument not found in log message  [loguru-logger-kwarg]
+    main:3: error: a keyword argument not found in log message  [logger-kwarg]
+    main:6: error: b keyword argument not found in log message  [logger-kwarg]
+    main:8: error: a keyword argument not found in log message  [logger-kwarg]
+    main:9: error: a keyword argument not found in log message  [logger-kwarg]
+    main:14: error: c keyword argument not found in log message  [logger-kwarg]
 - case: missing_kwarg
   main: |
     import random
@@ -85,8 +85,8 @@
       bar=random.randint(1, 10),
     )
   out: |
-    main:4: error: b keyword argument is missing  [loguru-logger-kwarg]
-    main:6: error: car keyword argument is missing  [loguru-logger-kwarg]
+    main:4: error: b keyword argument is missing  [logger-kwarg]
+    main:6: error: car keyword argument is missing  [logger-kwarg]
 - case: bad_callable
   main: |
     from loguru import logger
@@ -100,6 +100,6 @@
 
     logger.warning('{} and e={e}', lambda d: 100, e=lambda: 200)
   out: |
-    main:3: error: Expected 0 arguments for <lambda>: fn kwarg   [loguru-logger-kwarg]
-    main:8: error: Expected 0 arguments for main.foo: abc  [loguru-logger-kwarg]
-    main:10: error: Expected 0 arguments for <lambda>: 0 arg   [loguru-logger-arg]
+    main:3: error: Expected 0 arguments for <lambda>: fn kwarg   [logger-kwarg]
+    main:8: error: Expected 0 arguments for main.foo: abc  [logger-kwarg]
+    main:10: error: Expected 0 arguments for <lambda>: 0 arg   [logger-arg]
