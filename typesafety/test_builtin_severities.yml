@@ -101,6 +101,7 @@
     main:6: error: car keyword argument is missing  [logger-kwarg]
 - case: bad_callable
   main: |
+    from operator import add
     from loguru import logger
 
     logger.opt(lazy=True).debug('test a={fn}', fn=lambda x: x)
@@ -109,9 +110,10 @@
       return f'{a * b}'
 
     logger.opt(lazy=True).debug('test b={abc}', abc=foo)
-
     logger.warning('{} and e={e}', lambda d: 100, e=lambda: 200)
+    logger.info("Crash: {}", add)
   out: |
-    main:3: error: Expected 0 arguments for <lambda>: fn kwarg   [logger-kwarg]
-    main:8: error: Expected 0 arguments for main.foo: abc  [logger-kwarg]
+    main:4: error: Expected 0 arguments for <lambda>: fn kwarg   [logger-kwarg]
+    main:9: error: Expected 0 arguments for main.foo: abc  [logger-kwarg]
     main:10: error: Expected 0 arguments for <lambda>: 0 arg   [logger-arg]
+    main:11: error: Expected 0 arguments for operator.add: 0 arg   [logger-arg]
