@@ -116,7 +116,7 @@
     logger.warning('{} and e={e}', lambda d: 100, e=lambda: 200)
     logger.info("Crash: {}", add)
   out: |
-    main:4: error: Expected 0 arguments for <lambda>: fn kwarg   [logger-kwarg]
+    main:4: error: Expected 0 arguments for <lambda>: fn kwarg  [logger-kwarg]
     main:9: error: Expected 0 arguments for main.foo: abc  [logger-kwarg]
-    main:10: error: Expected 0 arguments for <lambda>: 0 arg   [logger-arg]
-    main:11: error: Expected 0 arguments for operator.add: 0 arg   [logger-arg]
+    main:10: error: Expected 0 arguments for <lambda>: 0 arg  [logger-arg]
+    main:11: error: Expected 0 arguments for operator.add: 0 arg  [logger-arg]

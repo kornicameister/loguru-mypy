@@ -80,14 +80,14 @@ def _loguru_logger_call_handler(ctx: MethodContext) -> Type:
         for call_pos, call_arg in enumerate(call_args):
             if isinstance(call_arg, LambdaExpr) and call_arg.arguments:
                 ctx.api.msg.fail(
-                    f'Expected 0 arguments for <lambda>: {call_pos} arg ',
+                    f'Expected 0 arguments for <lambda>: {call_pos} arg',
                     context=call_arg,
                     code=ERROR_BAD_ARG,
                 )
             elif isinstance(call_arg, RefExpr) and isinstance(
                     call_arg.node, FuncDef) and call_arg.node.arguments:
                 ctx.api.msg.fail(
-                    f'Expected 0 arguments for {call_arg.node.fullname}: {call_arg}',
+                    f'Expected 0 arguments for {call_arg.fullname}: {call_pos} arg',
                     context=call_arg,
                     code=ERROR_BAD_ARG,
                 )
@@ -103,7 +103,7 @@ def _loguru_logger_call_handler(ctx: MethodContext) -> Type:
             return ctx.default_return_type
         elif isinstance(maybe_kwarg_expr, LambdaExpr) and maybe_kwarg_expr.arguments:
             ctx.api.msg.fail(
-                f'Expected 0 arguments for <lambda>: {log_msg_kwarg} kwarg ',
+                f'Expected 0 arguments for <lambda>: {log_msg_kwarg} kwarg',
                 context=maybe_kwarg_expr,
                 code=ERROR_BAD_KWARG,
             )
