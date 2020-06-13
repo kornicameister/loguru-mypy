@@ -133,6 +133,8 @@ class LoguruPlugin(Plugin):
         'warning',
         'error',
         'exception',
+        'success',
+        'trace',
     )
 
     def get_method_hook(

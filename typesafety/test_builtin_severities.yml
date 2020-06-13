@@ -10,6 +10,8 @@
     logger.debug('test c={} d={}', 3, 4)
     logger.exception('test e={} ip={ip}', 5, ip='129.22.33.33')
     logger.debug('{}', lambda: 3)
+    logger.success('Great success {}', 365)
+    logger.trace('Tracing is not good for {}', 'health')
 - case: ok_double_quotes
   main: |
     from loguru import logger
@@ -17,6 +19,7 @@
     logger.info("test")
     logger.info("test {}", "a")
     logger.warning("warn {a} {}", 3 / 4, a=1)
+    logger.trace("trace {a} {b}", a=1, b=2)
 - case: ok_mixed_quotes
   main: |
     from loguru import logger
