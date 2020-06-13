@@ -1,11 +1,10 @@
 ---
-
 name: CI
 "on":
   push:
-    branches: [ master ]
+    branches: [master]
   pull_request:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   lint:
@@ -15,32 +14,32 @@ jobs:
         python-version: [3.8]
         linter: [yapf, flake8, mypy]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install tox==$(grep tox < test-requirements.txt | awk -F'==' '{print $2}')
-    - name: Lint ${{ matrix.linter }}
-      run: tox -e ${{ matrix.linter }}
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox==$(grep tox < test-requirements.txt | awk -F'==' '{print $2}')
+      - name: Lint ${{ matrix.linter }}
+        run: tox -e ${{ matrix.linter }}
   test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8]
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install tox==$(grep tox < test-requirements.txt | awk -F'==' '{print $2}')
-        pip install tox-gh-actions
-    - name: Test
-      run: tox
+      - uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install tox==$(grep tox < test-requirements.txt | awk -F'==' '{print $2}')
+          pip install tox-gh-actions
+      - name: Test
+        run: tox
