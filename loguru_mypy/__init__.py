@@ -174,7 +174,6 @@ class LoguruPlugin(Plugin):
         'success',
         'trace',
     )
-    __slots__ = ('known_loggers', )
 
     def __init__(self, options: Options) -> None:
         super().__init__(options)
