@@ -1,0 +1,38 @@
+---
+- case: lazy_ok
+  main: |
+    from loguru import logger
+
+    LOG = logger.opt(lazy=True)
+
+    LOG.info('Test {}', lambda: 1)
+    LOG.debug('Test {} {}', lambda: 1, lambda: 2)
+    LOG.warning('Test {} {} {}', lambda: 1, lambda: 2, lambda: 3)
+    LOG.trace('Test a={a}', a=lambda: 'a')
+    LOG.error('Test b={b}', b=lambda: 'b')
+- case: eager_ok
+  main: |
+    from loguru import logger
+
+    LOG = logger.opt(lazy=False)
+
+    LOG.info('Test {}', lambda x: 1)
+    LOG.debug('Test {} {}', lambda x: 1, lambda y: 2)
+    LOG.warning('Test {} {} {}', lambda a: 1, lambda b: 2, lambda c: 3)
+    LOG.trace('Test a={a}', a=lambda x: x)
+    LOG.error('Test b={b}', b=lambda x: x)
+- case: lazy_bad
+  main: |
+    from loguru import logger
+
+    logger.opt(lazy=True).info('Test {} {}', lambda: 1, lambda x: 2)
+    logger.opt(lazy=True).debug('Test {} {}', lambda: 1, lambda x: 2)
+    logger.opt(lazy=True).warning('Test {} {}', lambda: 1, lambda x: 2)
+    logger.opt(lazy=True).trace('Test a={a} b={b}', a=lambda: 'a', b=lambda x: x)
+    logger.opt(lazy=True).error('Test b={b} c={c}', b=lambda: 'b', c=lambda x: x)
+  out: |
+    main:3: error: Expected 0 arguments for <lambda>: 1 arg  [logger-arg]
+    main:4: error: Expected 0 arguments for <lambda>: 1 arg  [logger-arg]
+    main:5: error: Expected 0 arguments for <lambda>: 1 arg  [logger-arg]
+    main:6: error: Expected 0 arguments for <lambda>: b kwarg  [logger-kwarg]
+    main:7: error: Expected 0 arguments for <lambda>: c kwarg  [logger-kwarg]

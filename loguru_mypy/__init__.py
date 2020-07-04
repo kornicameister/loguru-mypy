@@ -1,3 +1,4 @@
+import functools
 import string
 import typing as t
 
@@ -5,14 +6,20 @@ from mypy.errorcodes import ErrorCode
 from mypy.nodes import (
     FuncDef,
     LambdaExpr,
+    NameExpr,
     RefExpr,
     StrExpr,
 )
+from mypy.options import Options
 from mypy.plugin import (
     MethodContext,
     Plugin,
 )
-from mypy.types import Type
+from mypy.types import (
+    get_proper_type,
+    ProperType,
+    Type,
+)
 import typing_extensions as te
 
 ERROR_BAD_ARG: te.Final[ErrorCode] = ErrorCode(
@@ -27,8 +34,25 @@ ERROR_BAD_KWARG: te.Final[ErrorCode] = ErrorCode(
 )
 
 
-def _loguru_logger_call_handler(ctx: MethodContext) -> Type:
+class Opts(t.NamedTuple):
+    lazy: bool
+
+
+DEFAULT_LAZY = False  # type: te.Final
+DEFAULT_OPTS = Opts(lazy=DEFAULT_LAZY)  # type: te.Final
+NAME_TO_BOOL = {
+    'False': False,
+    'True': True,
+}  # type: te.Final
+
+
+def _loguru_logger_call_handler(
+    loggers: t.Dict[ProperType, Opts],
+    ctx: MethodContext,
+) -> Type:
     log_msg_expr = ctx.args[0][0]
+    logger_opts = loggers.get(ctx.type) or DEFAULT_OPTS
+
     assert isinstance(log_msg_expr, StrExpr)
 
     # collect call args/kwargs
@@ -76,7 +100,7 @@ def _loguru_logger_call_handler(ctx: MethodContext) -> Type:
             code=ERROR_BAD_ARG,
         )
         return ctx.default_return_type
-    else:
+    elif logger_opts.lazy:
         for call_pos, call_arg in enumerate(call_args):
             if isinstance(call_arg, LambdaExpr) and call_arg.arguments:
                 ctx.api.msg.fail(
@@ -101,20 +125,21 @@ def _loguru_logger_call_handler(ctx: MethodContext) -> Type:
                 code=ERROR_BAD_KWARG,
             )
             return ctx.default_return_type
-        elif isinstance(maybe_kwarg_expr, LambdaExpr) and maybe_kwarg_expr.arguments:
-            ctx.api.msg.fail(
-                f'Expected 0 arguments for <lambda>: {log_msg_kwarg} kwarg',
-                context=maybe_kwarg_expr,
-                code=ERROR_BAD_KWARG,
-            )
-        elif isinstance(maybe_kwarg_expr, RefExpr) and isinstance(
-                maybe_kwarg_expr.node, FuncDef) and maybe_kwarg_expr.node.arguments:
-            ctx.api.msg.fail(
-                'Expected 0 arguments for '
-                f'{maybe_kwarg_expr.node.fullname}: {log_msg_kwarg}',
-                context=maybe_kwarg_expr,
-                code=ERROR_BAD_KWARG,
-            )
+        elif logger_opts.lazy:
+            if isinstance(maybe_kwarg_expr, LambdaExpr) and maybe_kwarg_expr.arguments:
+                ctx.api.msg.fail(
+                    f'Expected 0 arguments for <lambda>: {log_msg_kwarg} kwarg',
+                    context=maybe_kwarg_expr,
+                    code=ERROR_BAD_KWARG,
+                )
+            elif isinstance(maybe_kwarg_expr, RefExpr) and isinstance(
+                    maybe_kwarg_expr.node, FuncDef) and maybe_kwarg_expr.node.arguments:
+                ctx.api.msg.fail(
+                    'Expected 0 arguments for '
+                    f'{maybe_kwarg_expr.node.fullname}: {log_msg_kwarg}',
+                    context=maybe_kwarg_expr,
+                    code=ERROR_BAD_KWARG,
+                )
 
     for extra_kwarg_name in call_kwargs:
         ctx.api.msg.fail(
@@ -124,6 +149,19 @@ def _loguru_logger_call_handler(ctx: MethodContext) -> Type:
         )
 
     return ctx.default_return_type
+
+
+def _loguru_opt_call_handler(
+    loggers: t.Dict[ProperType, Opts],
+    ctx: MethodContext,
+) -> Type:
+    return_type = get_proper_type(ctx.default_return_type)
+
+    lazy_expr = ctx.args[ctx.callee_arg_names.index('lazy')][0]
+    if isinstance(lazy_expr, NameExpr):
+        loggers[return_type] = Opts(lazy=NAME_TO_BOOL[lazy_expr.name])
+
+    return return_type
 
 
 class LoguruPlugin(Plugin):
@@ -137,14 +175,20 @@ class LoguruPlugin(Plugin):
         'trace',
     )
 
+    def __init__(self, options: Options) -> None:
+        super().__init__(options)
+        self._known_loggers: t.Dict[ProperType, Opts] = {}
+
     def get_method_hook(
         self,
         fullname: str,
     ) -> t.Optional[t.Callable[[MethodContext], Type]]:
         if fullname.startswith('loguru'):
-            _, maybe_severity = fullname.rsplit('.', 1)
-            if maybe_severity in self.builtin_severities:
-                return _loguru_logger_call_handler
+            _, method = fullname.rsplit('.', 1)
+            if method in self.builtin_severities:
+                return functools.partial(_loguru_logger_call_handler, self._known_loggers)
+            elif method == 'opt':
+                return functools.partial(_loguru_opt_call_handler, self._known_loggers)
         return super().get_method_hook(fullname)
 
 
