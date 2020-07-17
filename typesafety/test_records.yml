@@ -1,0 +1,12 @@
+---
+- case: record_true_no_error
+  main: |
+    from loguru import logger
+
+    LOG = logger.opt(record=True)
+
+    LOG.info('a')
+    LOG.debug('r={record["line"]}')
+- case: record_true_unknown_key
+  main: |
+
