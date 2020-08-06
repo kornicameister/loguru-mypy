@@ -1,0 +1,13 @@
+---
+# tests opt attributes that are not triggering any
+# type hinting options
+- case: opt
+  parametrized:
+    - attr: "colors=False"
+    - attr: "colors=True"
+    - attr: "depth=0"
+    - attr: "depth=1"
+  main: |
+    from loguru import logger
+
+    logger.opt({{ attr }}).info('I am testing {{ attr }}')
