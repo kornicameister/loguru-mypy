@@ -4,6 +4,7 @@ import typing as t
 
 from mypy.errorcodes import ErrorCode
 from mypy.nodes import (
+    Expression,
     FuncDef,
     LambdaExpr,
     NameExpr,
@@ -53,7 +54,7 @@ def _loguru_logger_call_handler(
     log_msg_expr = ctx.args[0][0]
     logger_opts = loggers.get(ctx.type) or DEFAULT_OPTS
 
-    assert isinstance(log_msg_expr, StrExpr)
+    assert isinstance(log_msg_expr, StrExpr), type(log_msg_expr)
 
     # collect call args/kwargs
     # due to funky structure mypy offers here, it's easier
@@ -157,11 +158,22 @@ def _loguru_opt_call_handler(
 ) -> Type:
     return_type = get_proper_type(ctx.default_return_type)
 
-    lazy_expr = ctx.args[ctx.callee_arg_names.index('lazy')][0]
+    lazy_expr = _get_opt_arg('lazy', ctx=ctx)
     if isinstance(lazy_expr, NameExpr):
         loggers[return_type] = Opts(lazy=NAME_TO_BOOL[lazy_expr.name])
 
     return return_type
+
+
+def _get_opt_arg(
+    arg_name: str,
+    *,
+    ctx: MethodContext,
+) -> t.Optional[Expression]:
+    try:
+        return ctx.args[ctx.callee_arg_names.index(arg_name)][0]
+    except IndexError:
+        return None
 
 
 class LoguruPlugin(Plugin):
