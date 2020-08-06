@@ -25,6 +25,19 @@
     from loguru import logger
 
     logger.error("error '{}'", 3)
+- case: ok_just_var
+  parametrized:
+    - level: info
+    - level: debug
+    - level: warning
+    - level: error
+    - level: trace
+    - level: exception
+  main: |
+    from loguru import logger
+
+    logger.{{ level }}('{}', 1)
+    logger.{{ level }}('{var}', var=1)
 - case: with_alias
   main: |
     from datetime import datetime
