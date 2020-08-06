@@ -1,12 +1,14 @@
 ---
 - case: record_true_no_error
+  parametrized:
+    - severity: info
+    - severity: debug
+    - severity: error
+    - severity: trace
   main: |
     from loguru import logger
 
     LOG = logger.opt(record=True)
 
-    LOG.info('a')
-    LOG.debug('r={record["line"]}')
-- case: record_true_unknown_key
-  main: |
-
+    LOG.{{ severity }}('a')
+    LOG.{{ severity }}('r={record["line"]}')
