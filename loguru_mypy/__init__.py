@@ -97,7 +97,7 @@ def _loguru_logger_call_handler(
     try:
         call_kwargs = {
             kwarg_name: ctx.args[2][idx]
-            for idx, kwarg_name in enumerate(ctx.arg_names[2])
+            for idx, kwarg_name in enumerate(ctx.arg_names[2]) if ctx.args[2][idx]
         }
     except IndexError:
         call_kwargs = {}
@@ -124,6 +124,7 @@ def _loguru_logger_call_handler(
     if not _analyze_record_results(
             log_msg_expr,
             log_msg_record_references,
+            call_kwargs,
             logger_opts,
             ctx=ctx,
     ):
@@ -199,10 +200,18 @@ def _loguru_logger_call_handler(
 def _analyze_record_results(
     log_msg_expr: StrExpr,
     log_msg_record_references: t.Sequence[str],
+    call_kwargs: t.Mapping[str, t.Any],
     logger_opts: Opts,
     *,
     ctx: MethodContext,
 ) -> bool:
+    if logger_opts.record and 'record' in call_kwargs:
+        ctx.api.msg.fail(
+            'record keyword argument cannot override record structure',
+            context=log_msg_expr,
+            code=ERROR_BAD_KWARG,
+        )
+        return False
     if logger_opts.record and not log_msg_record_references:
         ctx.api.msg.note(
             'Logger configured with record=True is not using record structure',

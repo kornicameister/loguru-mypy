@@ -23,7 +23,7 @@
 - case: record_in_kwargs
   parametrized:
     - record: "True"
-      out: "main:4: error: record keyword argument cannot override record structure  [logger-record]"
+      out: "main:4: error: record keyword argument cannot override record structure  [logger-kwarg]"
     - record: "False"
       out: "main:4: error: Logger is accessing record structure without record=True  [logger-record]"
   main: |
