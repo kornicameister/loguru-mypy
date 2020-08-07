@@ -24,7 +24,7 @@ from mypy.types import (
 )
 import typing_extensions as te
 
-RECORD_ARG_REGEX = re.compile('record\[["|\'](?P<arg>.*)["|\']\]')  # type: te.Final
+RECORD_ARG_REGEX = re.compile('record\\[["|\'](?P<arg>.*)["|\']\\]')  # type: te.Final
 
 ERROR_BAD_ARG: te.Final[ErrorCode] = ErrorCode(
     'logger-arg',
