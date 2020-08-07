@@ -36,49 +36,41 @@
       },
     )
   out: "{{ out }}"
-- case: record_keys
+- case: record_keys_errors
   parametrized:
     - key: foo
-      out: "Logger record structure does not contain {{ key }} key"
-    - key: line
-      out: ""
-    - key: exception
-      out: ""
-    - key: elapsed
-      out: ""
     - key: elapsedd
-      out: "Logger record structure does not contain {{ key }} key"
-    - key: exception
-      out: ""
-    - key: extra
-      out: ""
-    - key: file
-      out: ""
-    - key: function
-      out: ""
-    - key: level
-      out: ""
-    - key: line
-      out: ""
-    - key: message
-      out: ""
-    - key: module
-      out: ""
-    - key: name
-      out: ""
-    - key: process
-      out: ""
     - key: odin
-      out: "Logger record structure does not contain {{ key }} key"
-    - key: thread
-      out: ""
-    - key: time
-      out: ""
   main: |
     from loguru import logger
 
     logger.opt(record=True).info(
-      'Accessing record["{{ key }}"] makes for error={yes_no}',
+      'Accessing {record["{{ key }}"]} makes for error={yes_no}',
       yes_no=len('{{ out }}') != 0,
     )
-  out: "{{ out }}"
+  out: |
+    main:4: error: Logger record structure does not contain {{ key }} key  [logger-record]
+- case: record_keys_ok
+  parametrized:
+    - key: line
+    - key: exception
+    - key: elapsed
+    - key: exception
+    - key: extra
+    - key: file
+    - key: function
+    - key: level
+    - key: line
+    - key: message
+    - key: module
+    - key: name
+    - key: process
+    - key: thread
+    - key: time
+  main: |
+    from loguru import logger
+
+    logger.opt(record=True).info(
+      'Accessing {record["{{ key }}"]} makes for error={yes_no}',
+      yes_no=len('{{ out }}') != 0,
+    )

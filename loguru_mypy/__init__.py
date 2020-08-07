@@ -95,9 +95,9 @@ def _loguru_logger_call_handler(
         call_args = []
         call_args_count = 0
     try:
-        call_kwargs = {
+        call_kwargs: t.Dict[str, Expression] = {
             kwarg_name: ctx.args[2][idx]
-            for idx, kwarg_name in enumerate(ctx.arg_names[2]) if ctx.args[2][idx]
+            for idx, kwarg_name in enumerate(ctx.arg_names[2]) if kwarg_name
         }
     except IndexError:
         call_kwargs = {}
@@ -200,7 +200,7 @@ def _loguru_logger_call_handler(
 def _analyze_record_results(
     log_msg_expr: StrExpr,
     log_msg_record_references: t.Sequence[str],
-    call_kwargs: t.Mapping[str, t.Any],
+    call_kwargs: t.Mapping[str, Expression],
     logger_opts: Opts,
     *,
     ctx: MethodContext,
