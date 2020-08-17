@@ -11,31 +11,42 @@
     LOG = logger.opt(record=True)
 
     LOG.{{ level }}('test')
-    LOG.{{ level }}('r={record["line"]}')
-    LOG.{{ level }}('{record["line"]}')
+    LOG.{{ level }}('r={record[line]}')
+    LOG.{{ level }}('{record[line]}')
   out: |
     main:5: note: Logger configured with record=True is not using record structure
 - case: no_error_false
-  main: |
-    from loguru import logger
-
-    logger.opt(record=False).info('test')
-- case: record_in_kwargs
   parametrized:
-    - record: "True"
-      out: "main:4: error: record keyword argument cannot override record structure  [logger-kwarg]"
-    - record: "False"
-      out: "main:4: error: Logger is accessing record structure without record=True  [logger-record]"
+    - level: info
+    - level: debug
+    - level: error
+    - level: trace
   main: |
     from loguru import logger
 
-    logger.opt(record={{ record  }}).info(
-      'line is {record["line"]}',
-      record={
-        'line': 1,
-      },
-    )
-  out: "{{ out }}"
+    logger.opt(record=False).{{ level  }}('test')
+- case: record_kwargs_true
+  main: |
+    from loguru import logger
+
+    logger.opt(record=True).info('line is {record[line]}')
+    logger.debug('No warning for this {record}', record=1990)
+  out: |
+    main:4: error: record keyword argument cannot override record structure  [logger-kwarg]
+- case: record_kwargs_false
+  parametrized:
+    - severity: info
+    - severity: debug
+    - severity: warning
+    - severity: error
+    - severity: exception
+  main: |
+    from loguru import logger
+
+    logger.opt(record=False).{{ severity }}('{record[foo]}', record={'foo': 1})
+
+    LOG = logger.opt(record=False, lazy=True)
+    LOG.{{ severity  }}('lazy is {record[bar]}', record=lambda: {'bar': 2})
 - case: record_keys_errors
   parametrized:
     - key: foo
@@ -45,17 +56,15 @@
     from loguru import logger
 
     logger.opt(record=True).info(
-      'Accessing {record["{{ key }}"]} makes for error={yes_no}',
+      'Accessing {record[{{ key }}]} makes for error={yes_no}',
       yes_no=len('{{ out }}') != 0,
     )
   out: |
     main:4: error: Logger record structure does not contain {{ key }} key  [logger-record]
 - case: record_keys_ok
   parametrized:
-    - key: line
     - key: exception
     - key: elapsed
-    - key: exception
     - key: extra
     - key: file
     - key: function
@@ -71,6 +80,6 @@
     from loguru import logger
 
     logger.opt(record=True).info(
-      'Accessing {record["{{ key }}"]} makes for error={yes_no}',
-      yes_no=len('{{ out }}') != 0,
+      'Accessing {record[{{ key }}]} makes for error={yes_no}',
+      yes_no='no',
     )

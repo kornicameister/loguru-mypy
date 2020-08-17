@@ -24,7 +24,7 @@ from mypy.types import (
 )
 import typing_extensions as te
 
-RECORD_ARG_REGEX = re.compile('record\\[["|\'](?P<arg>.*)["|\']\\]')  # type: te.Final
+RECORD_ARG_REGEX = re.compile('record\\[(?P<arg>[^\\]]*)\\]')  # type: te.Final
 
 ERROR_BAD_ARG: te.Final[ErrorCode] = ErrorCode(
     'logger-arg',
@@ -118,8 +118,7 @@ def _loguru_logger_call_handler(
             maybe_record_match = RECORD_ARG_REGEX.search(s_arg_name)
             if maybe_record_match:
                 log_msg_record_references.append(maybe_record_match.group('arg'))
-            else:
-                log_msg_expected_kwargs.append(s_arg_name)
+            log_msg_expected_kwargs.append(s_arg_name)
 
     if not _analyze_record_results(
             log_msg_expr,
@@ -205,28 +204,23 @@ def _analyze_record_results(
     *,
     ctx: MethodContext,
 ) -> bool:
-    if logger_opts.record and 'record' in call_kwargs:
-        ctx.api.msg.fail(
-            'record keyword argument cannot override record structure',
-            context=log_msg_expr,
-            code=ERROR_BAD_KWARG,
-        )
-        return False
-    if logger_opts.record and not log_msg_record_references:
-        ctx.api.msg.note(
-            'Logger configured with record=True is not using record structure',
-            context=log_msg_expr,
-            code=ERROR_BAD_RECORD,
-        )
-        return False
-    elif not logger_opts.record and log_msg_record_references:
-        ctx.api.msg.fail(
-            'Logger is accessing record structure without record=True',
-            context=log_msg_expr,
-            code=ERROR_BAD_RECORD,
-        )
-        return False
-    elif logger_opts.record:
+    if logger_opts.record:
+
+        if 'record' in call_kwargs:
+            ctx.api.msg.fail(
+                'record keyword argument cannot override record structure',
+                context=log_msg_expr,
+                code=ERROR_BAD_KWARG,
+            )
+            return False
+        elif not log_msg_record_references:
+            ctx.api.msg.note(
+                'Logger configured with record=True is not using record structure',
+                context=log_msg_expr,
+                code=ERROR_BAD_RECORD,
+            )
+            return False
+
         for record_attr in log_msg_record_references:
             if record_attr not in RECORD_ARGS:
                 ctx.api.msg.fail(
@@ -234,6 +228,8 @@ def _analyze_record_results(
                     context=log_msg_expr,
                     code=ERROR_BAD_RECORD,
                 )
+            return False
+
     return True
 
 

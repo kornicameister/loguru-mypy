@@ -46,3 +46,12 @@ invalid usage of that _record_ around following places:
 
 - `loguru.opt(record=True).info('{record}', record={})` - this results in `RuntimeError` from
   `loguru` because there is an attempt to override `record` inside of message's placeholder
+- `loguru.opt(record=True).debug('{record["foo"]}')` - this one tries to access key `foo` of the
+  `record`. Unfortunately `foo` is not a member.
+
+Additionally, following checks happen:
+
+- **error** is issued if `logger` attempts to access `record` structure without being configured with
+  `opt(record=True)`
+- **note** if `logger.opt(record=True)` does not use `record` structure. However this will not
+  happen if there is a `record` passed as `kwarg``
