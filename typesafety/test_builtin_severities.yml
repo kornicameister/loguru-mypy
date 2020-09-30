@@ -60,11 +60,11 @@
     logger.error('test {} {} {}', 11, 22, 33, 44)
     logger.exception('{}', 1, 2)
   out: |
-    main:3: note: Expected 0 but found 1 positional arguments for log message
-    main:4: note: Expected 1 but found 3 positional arguments for log message
-    main:5: note: Expected 2 but found 3 positional arguments for log message
-    main:6: note: Expected 3 but found 4 positional arguments for log message
-    main:7: note: Expected 1 but found 2 positional arguments for log message
+    main:3: error: Not all arguments converted during string formatting  [str-format]
+    main:4: error: Not all arguments converted during string formatting  [str-format]
+    main:5: error: Not all arguments converted during string formatting  [str-format]
+    main:6: error: Not all arguments converted during string formatting  [str-format]
+    main:7: error: Not all arguments converted during string formatting  [str-format]
 - case: missing_arg
   main: |
     from loguru import logger
@@ -75,10 +75,10 @@
     logger.error('test {} {} {} {} {}', 11, 22, 33, 44)
     logger.exception('{} {} {}', 1, 2)
   out: |
-    main:3: error: Missing 1 positional arguments for log message  [logger-arg]
-    main:4: error: Missing 1 positional arguments for log message  [logger-arg]
-    main:6: error: Missing 1 positional arguments for log message  [logger-arg]
-    main:7: error: Missing 1 positional arguments for log message  [logger-arg]
+    main:3: error: Cannot find replacement for positional format specifier 1  [str-format]
+    main:4: error: Cannot find replacement for positional format specifier 3  [str-format]
+    main:6: error: Cannot find replacement for positional format specifier 4  [str-format]
+    main:7: error: Cannot find replacement for positional format specifier 2  [str-format]
 - case: extra_kwarg
   main: |
     from loguru import logger
@@ -96,11 +96,11 @@
     except ZeroDivisionError:
       logger.exception('{a} / {b}', a=2, b=0, c=0)
   out: |
-    main:3: error: a keyword argument not found in log message  [logger-kwarg]
-    main:6: error: b keyword argument not found in log message  [logger-kwarg]
-    main:8: error: a keyword argument not found in log message  [logger-kwarg]
-    main:9: error: a keyword argument not found in log message  [logger-kwarg]
-    main:14: error: c keyword argument not found in log message  [logger-kwarg]
+    main:3: error: Not all arguments converted during string formatting  [str-format]
+    main:6: error: Not all arguments converted during string formatting  [str-format]
+    main:8: error: Not all arguments converted during string formatting  [str-format]
+    main:9: error: Not all arguments converted during string formatting  [str-format]
+    main:14: error: Not all arguments converted during string formatting  [str-format]
 - case: missing_kwarg
   main: |
     import random
@@ -113,8 +113,8 @@
       bar=random.randint(1, 10),
     )
   out: |
-    main:4: error: b keyword argument is missing  [logger-kwarg]
-    main:6: error: car keyword argument is missing  [logger-kwarg]
+    main:4: error: Cannot find replacement for named format specifier "b"  [str-format]
+    main:6: error: Cannot find replacement for named format specifier "car"  [str-format]
 - case: bad_callable
   main: |
     from operator import add
