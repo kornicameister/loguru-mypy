@@ -5,4 +5,4 @@ pytest-mypy-plugins==1.4.0
 pytest-randomly==3.4.1
 
 mypy==0.782
-loguru==0.5.1
+loguru==0.5.3
