@@ -3,6 +3,7 @@
 A fancy plugin to boost up your logging with [loguru](https://github.com/Delgan/loguru)
 
 ![GitHub Workflow Status (branch)](https://img.shields.io/github/workflow/status/kornicameister/loguru-mypy/CI/master)
+[![Open Source Helpers](https://www.codetriage.com/kornicameister/loguru-mypy/badges/users.svg)](https://www.codetriage.com/kornicameister/loguru-mypy)
 ![PyPI](https://img.shields.io/pypi/v/loguru-mypy)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/loguru-mypy)
 [![time tracker](https://wakatime.com/badge/github/kornicameister/loguru-mypy.svg)](https://wakatime.com/badge/github/kornicameister/loguru-mypy)
