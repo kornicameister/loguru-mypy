@@ -1,6 +1,4 @@
 import functools
-import re
-import string
 import typing as t
 
 from mypy.errorcodes import ErrorCode
@@ -10,7 +8,6 @@ from mypy.nodes import (
     LambdaExpr,
     NameExpr,
     RefExpr,
-    StrExpr,
 )
 from mypy.options import Options
 from mypy.plugin import (
@@ -24,7 +21,7 @@ from mypy.types import (
 )
 import typing_extensions as te
 
-RECORD_ARG_REGEX = re.compile('record\\[(?P<arg>[^\\]]*)\\]')  # type: te.Final
+from loguru_mypy import call_parser
 
 ERROR_BAD_ARG: te.Final[ErrorCode] = ErrorCode(
     'logger-arg',
@@ -36,98 +33,30 @@ ERROR_BAD_KWARG: te.Final[ErrorCode] = ErrorCode(
     'Named argument of loguru handler is not valid for given message',
     'loguru',
 )
-ERROR_BAD_RECORD: te.Final[ErrorCode] = ErrorCode(
-    'logger-record',
-    'Invalid access to loguru record structure',
-    'loguru',
-)
 
 
 class Opts(t.NamedTuple):
     lazy: bool
-    record: bool
 
 
 DEFAULT_LAZY = False  # type: te.Final
-DEFAULT_RECORD = False  # type: te.Final
-DEFAULT_OPTS = Opts(
-    lazy=DEFAULT_LAZY,
-    record=DEFAULT_RECORD,
-)  # type: te.Final
+DEFAULT_OPTS = Opts(lazy=DEFAULT_LAZY)  # type: te.Final
 NAME_TO_BOOL = {
     'False': False,
     'True': True,
 }  # type: te.Final
-
-RECORD_ARGS = (
-    'elapsed',
-    'exception',
-    'extra',
-    'file',
-    'function',
-    'level',
-    'line',
-    'message',
-    'module',
-    'name',
-    'process',
-    'thread',
-    'time',
-)  # type: te.Final
 
 
 def _loguru_logger_call_handler(
     loggers: t.Dict[ProperType, Opts],
     ctx: MethodContext,
 ) -> Type:
-    log_msg_expr = ctx.args[0][0]
     logger_opts = loggers.get(ctx.type) or DEFAULT_OPTS
 
-    assert isinstance(log_msg_expr, StrExpr), type(log_msg_expr)
-
-    # collect call args/kwargs
-    # due to funky structure mypy offers here, it's easier
-    # to beg for forgiveness here
-    try:
-        call_args = ctx.args[1]
-        call_args_count = len(call_args)
-    except IndexError:
-        call_args = []
-        call_args_count = 0
-    try:
-        call_kwargs: t.Dict[str, Expression] = {
-            kwarg_name: ctx.args[2][idx]
-            for idx, kwarg_name in enumerate(ctx.arg_names[2]) if kwarg_name
-        }
-    except IndexError:
-        call_kwargs = {}
+    call_arguments = call_parser.parse_arguments(ctx)
+    msg_arguments = call_parser.parse_message(ctx)
 
     # collect args/kwargs from string interpolation
-    log_msg_value: str = log_msg_expr.value
-    log_msg_expected_args_count = 0
-    log_msg_expected_kwargs = []
-    log_msg_record_references = []
-
-    for res in string.Formatter().parse(log_msg_value):
-        s_arg_name = res[1].strip() if res[1] is not None else None
-        if s_arg_name is None:
-            continue
-        elif not s_arg_name:
-            log_msg_expected_args_count += 1
-        else:
-            maybe_record_match = RECORD_ARG_REGEX.search(s_arg_name)
-            if maybe_record_match:
-                log_msg_record_references.append(maybe_record_match.group('arg'))
-            log_msg_expected_kwargs.append(s_arg_name)
-
-    if not _analyze_record_results(
-            log_msg_expr,
-            log_msg_record_references,
-            call_kwargs,
-            logger_opts,
-            ctx=ctx,
-    ):
-        return ctx.default_return_type
 
     if log_msg_expected_args_count > call_args_count:
         ctx.api.msg.fail(
@@ -196,43 +125,6 @@ def _loguru_logger_call_handler(
     return ctx.default_return_type
 
 
-def _analyze_record_results(
-    log_msg_expr: StrExpr,
-    log_msg_record_references: t.Sequence[str],
-    call_kwargs: t.Mapping[str, Expression],
-    logger_opts: Opts,
-    *,
-    ctx: MethodContext,
-) -> bool:
-    if logger_opts.record:
-
-        if 'record' in call_kwargs:
-            ctx.api.msg.fail(
-                'record keyword argument cannot override record structure',
-                context=log_msg_expr,
-                code=ERROR_BAD_KWARG,
-            )
-            return False
-        elif not log_msg_record_references:
-            ctx.api.msg.note(
-                'Logger configured with record=True is not using record structure',
-                context=log_msg_expr,
-                code=ERROR_BAD_RECORD,
-            )
-            return False
-
-        for record_attr in log_msg_record_references:
-            if record_attr not in RECORD_ARGS:
-                ctx.api.msg.fail(
-                    f'Logger record structure does not contain {record_attr} key',
-                    context=log_msg_expr,
-                    code=ERROR_BAD_RECORD,
-                )
-            return False
-
-    return True
-
-
 def _loguru_opt_call_handler(
     loggers: t.Dict[ProperType, Opts],
     ctx: MethodContext,
@@ -240,18 +132,8 @@ def _loguru_opt_call_handler(
     return_type = get_proper_type(ctx.default_return_type)
 
     lazy_expr = _get_opt_arg('lazy', ctx=ctx)
-    record_expr = _get_opt_arg('record', ctx=ctx)
-
-    loggers[return_type] = Opts(
-        lazy=NAME_TO_BOOL[lazy_expr.name] if isinstance(
-            lazy_expr,
-            NameExpr,
-        ) else False,
-        record=NAME_TO_BOOL[record_expr.name] if isinstance(
-            record_expr,
-            NameExpr,
-        ) else False,
-    )
+    if isinstance(lazy_expr, NameExpr):
+        loggers[return_type] = Opts(lazy=NAME_TO_BOOL[lazy_expr.name])
 
     return return_type
 
