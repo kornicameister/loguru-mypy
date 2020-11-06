@@ -2,11 +2,14 @@ import functools
 import string
 import typing as t
 
+from mypy.checker import TypeChecker
 from mypy.errorcodes import ErrorCode
 from mypy.nodes import (
+    CallExpr,
     Expression,
     FuncDef,
     LambdaExpr,
+    MemberExpr,
     NameExpr,
     RefExpr,
     StrExpr,
@@ -47,6 +50,45 @@ NAME_TO_BOOL = {
 }  # type: te.Final
 
 
+def _check_str_format_call(log_msg_expr: StrExpr, ctx: MethodContext) -> None:
+    """ Taps into mypy to typecheck something like this:
+
+        ```py
+        logger.debug('The bar is "{my_foo.bar}"', my_foo=foo)
+        ```
+
+        as if it was written like this:
+
+        ```py
+        logger.debug('The bar is "{my_foo.bar}"'.format(my_foo=foo))
+        ```
+    """
+    call_expr = CallExpr(
+        callee=MemberExpr(expr=log_msg_expr, name='format'),
+        args=ctx.args[1] + ctx.args[2],
+        arg_kinds=ctx.arg_kinds[1] + ctx.arg_kinds[2],
+        arg_names=ctx.arg_names[1] + ctx.arg_names[2],
+    )
+    call_expr.set_line(log_msg_expr)
+
+    # WARNING: `ctx.api` *is* technically a `mypy.checker.TypeChecker` so the cast is
+    # safe to make, however, mypy says this should be an implementation detail.
+    # So, anything that's not part of the `CheckerPluginInterface` should be expected to
+    # change. See https://github.com/python/mypy/issues/6617
+    try:
+        type_checker = t.cast(TypeChecker, ctx.api)
+        type_checker.expr_checker.visit_call_expr(call_expr)
+    except AttributeError:
+        ctx.api.msg.fail(
+            (
+                "AttributeError when trying to access mypy's functionality. "
+                'This could mean you are trying to use incompatible versions '
+                'of mypy and loguru-mypy.'
+            ),
+            context=log_msg_expr,
+        )
+
+
 def _loguru_logger_call_handler(
     loggers: t.Dict[ProperType, Opts],
     ctx: MethodContext,
@@ -56,77 +98,50 @@ def _loguru_logger_call_handler(
 
     assert isinstance(log_msg_expr, StrExpr), type(log_msg_expr)
 
-    # collect call args/kwargs
-    # due to funky structure mypy offers here, it's easier
-    # to beg for forgiveness here
-    try:
-        call_args = ctx.args[1]
-        call_args_count = len(call_args)
-    except IndexError:
-        call_args = []
-        call_args_count = 0
-    try:
-        call_kwargs = {
-            kwarg_name: ctx.args[2][idx]
-            for idx, kwarg_name in enumerate(ctx.arg_names[2])
-        }
-    except IndexError:
-        call_kwargs = {}
+    _check_str_format_call(log_msg_expr, ctx)
 
-    # collect args/kwargs from string interpolation
-    log_msg_value: str = log_msg_expr.value
-    log_msg_expected_args_count = 0
-    log_msg_expected_kwargs = []
-    for res in string.Formatter().parse(log_msg_value):
-        if res[1] is None:
-            continue
-        elif not res[1].strip():
-            log_msg_expected_args_count += 1
-        else:
-            log_msg_expected_kwargs.append(res[1].strip())
+    if logger_opts.lazy:
+        # collect call args/kwargs
+        # due to funky structure mypy offers here, it's easier
+        # to beg for forgiveness here
+        try:
+            call_args = ctx.args[1]
+        except IndexError:
+            call_args = []
+        try:
+            call_kwargs = {
+                kwarg_name: ctx.args[2][idx]
+                for idx, kwarg_name in enumerate(ctx.arg_names[2])
+            }
+        except IndexError:
+            call_kwargs = {}
 
-    if log_msg_expected_args_count > call_args_count:
-        ctx.api.msg.fail(
-            f'Missing {log_msg_expected_args_count - call_args_count} '
-            'positional arguments for log message',
-            context=log_msg_expr,
-            code=ERROR_BAD_ARG,
-        )
-        return ctx.default_return_type
-    elif log_msg_expected_args_count < call_args_count:
-        ctx.api.msg.note(
-            f'Expected {log_msg_expected_args_count} but found {call_args_count} '
-            'positional arguments for log message',
-            context=log_msg_expr,
-            code=ERROR_BAD_ARG,
-        )
-        return ctx.default_return_type
-    elif logger_opts.lazy:
-        for call_pos, call_arg in enumerate(call_args):
-            if isinstance(call_arg, LambdaExpr) and call_arg.arguments:
-                ctx.api.msg.fail(
-                    f'Expected 0 arguments for <lambda>: {call_pos} arg',
-                    context=call_arg,
-                    code=ERROR_BAD_ARG,
-                )
-            elif isinstance(call_arg, RefExpr) and isinstance(
-                    call_arg.node, FuncDef) and call_arg.node.arguments:
-                ctx.api.msg.fail(
-                    f'Expected 0 arguments for {call_arg.fullname}: {call_pos} arg',
-                    context=call_arg,
-                    code=ERROR_BAD_ARG,
-                )
+        # collect args/kwargs from string interpolation
+        log_msg_value: str = log_msg_expr.value
+        log_msg_expected_kwargs = []
+        for res in string.Formatter().parse(log_msg_value):
+            if res[1] is None:
+                continue
+            else:
+                log_msg_expected_kwargs.append(res[1].strip())
 
-    for log_msg_kwarg in log_msg_expected_kwargs:
-        maybe_kwarg_expr = call_kwargs.pop(log_msg_kwarg, None)
-        if maybe_kwarg_expr is None:
-            ctx.api.msg.fail(
-                f'{log_msg_kwarg} keyword argument is missing',
-                context=log_msg_expr,
-                code=ERROR_BAD_KWARG,
-            )
-            return ctx.default_return_type
-        elif logger_opts.lazy:
+            for call_pos, call_arg in enumerate(call_args):
+                if isinstance(call_arg, LambdaExpr) and call_arg.arguments:
+                    ctx.api.msg.fail(
+                        f'Expected 0 arguments for <lambda>: {call_pos} arg',
+                        context=call_arg,
+                        code=ERROR_BAD_ARG,
+                    )
+                elif isinstance(call_arg, RefExpr) and isinstance(
+                        call_arg.node, FuncDef) and call_arg.node.arguments:
+                    ctx.api.msg.fail(
+                        f'Expected 0 arguments for {call_arg.fullname}: {call_pos} arg',
+                        context=call_arg,
+                        code=ERROR_BAD_ARG,
+                    )
+
+        for log_msg_kwarg in log_msg_expected_kwargs:
+            maybe_kwarg_expr = call_kwargs.pop(log_msg_kwarg, None)
             if isinstance(maybe_kwarg_expr, LambdaExpr) and maybe_kwarg_expr.arguments:
                 ctx.api.msg.fail(
                     f'Expected 0 arguments for <lambda>: {log_msg_kwarg} kwarg',
@@ -141,13 +156,6 @@ def _loguru_logger_call_handler(
                     context=maybe_kwarg_expr,
                     code=ERROR_BAD_KWARG,
                 )
-
-    for extra_kwarg_name in call_kwargs:
-        ctx.api.msg.fail(
-            f'{extra_kwarg_name} keyword argument not found in log message',
-            context=log_msg_expr,
-            code=ERROR_BAD_KWARG,
-        )
 
     return ctx.default_return_type
 
