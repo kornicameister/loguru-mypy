@@ -1,0 +1,33 @@
+---
+- case: ok__dot_access
+  parametrized:
+    - level: info
+    - level: debug
+    - level: warning
+    - level: error
+    - level: trace
+    - level: exception
+  main: |
+    from loguru import logger
+
+    class Foo:
+      bar = "baz"
+
+    foo = Foo()
+
+    logger.{{ level }}('The bar is "{0.bar}"', foo)
+    logger.{{ level }}('The bar is "{my_foo.bar}"', my_foo=foo)
+- case: no_attribute__dot_access
+  main: |
+    from loguru import logger
+
+    class Foo:
+      bar = "baz"
+
+    foo = Foo()
+
+    logger.info('The bar is "{0.baz}"', foo)
+    logger.info('The bar is "{my_foo.baz}"', my_foo=foo)
+  out: |
+    main:8: error: "Foo" has no attribute "baz"  [attr-defined]
+    main:9: error: "Foo" has no attribute "baz"  [attr-defined]
