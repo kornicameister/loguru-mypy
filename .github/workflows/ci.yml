@@ -56,9 +56,7 @@ jobs:
           awk '!/mypy==/'   requirements/tests.txt > tmp.txt \
             && mv -f tmp.txt requirements/tests.txt
 
-          echo "${{ matrix.loguru-version }}" >> requirements/tests.txt \
-            && grep loguru requirements/tests.txt
-          echo "${{ matrix.mypy-version }}" >> requirements/tests.txt \
-            && grep mypy requirements/tests.txt
+          echo "${{ matrix.loguru-version }}" >> requirements/tests.txt
+          echo "${{ matrix.mypy-version }}" >> requirements/tests.txt
       - name: Test
         run: tox
