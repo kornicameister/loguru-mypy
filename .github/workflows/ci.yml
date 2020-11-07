@@ -51,9 +51,9 @@ jobs:
           pip install tox-gh-actions
       - name: Patch test dependencies
         run: |
-          awk '!/loguru/' requirements/tests.txt > tmp.txt \
+          awk '!/loguru==/' requirements/tests.txt > tmp.txt \
             && mv -f tmp.txt requirements/tests.txt
-          awk '!/mypy/'   requirements/tests.txt > tmp.txt \
+          awk '!/mypy==/'   requirements/tests.txt > tmp.txt \
             && mv -f tmp.txt requirements/tests.txt
 
           echo "${{ matrix.loguru-version }}" >> requirements/tests.txt \
