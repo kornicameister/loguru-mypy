@@ -212,5 +212,13 @@ class LoguruPlugin(Plugin):
         return super().get_method_hook(fullname)
 
 
+class UnsupportedMypyVersion(RuntimeError):
+    def __init__(self, version: str) -> None:
+        super().__init__(f'Mypy {version} is not supported')
+
+
 def plugin(version: str) -> t.Type[LoguruPlugin]:
+    minor = int(version.split('.')[1].replace('+dev', ''))
+    if minor < 770:
+        raise UnsupportedMypyVersion(version)
     return LoguruPlugin
