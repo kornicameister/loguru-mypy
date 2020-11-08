@@ -7,6 +7,11 @@ A fancy plugin to boost up your logging with [loguru](https://github.com/Delgan/
 ![PyPI](https://img.shields.io/pypi/v/loguru-mypy)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/loguru-mypy)
 [![time tracker](https://wakatime.com/badge/github/kornicameister/loguru-mypy.svg)](https://wakatime.com/badge/github/kornicameister/loguru-mypy)
+[![Checked with mypy](http://www.mypy-lang.org/static/mypy_badge.svg)](http://mypy-lang.org/)
+
+## mypy compatibility
+
+`logoru-mypy` should compatible with `mypy==0.770` and upwards.
 
 ## Installation
 
