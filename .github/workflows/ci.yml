@@ -3,8 +3,21 @@ name: CI
 "on":
   push:
     branches: [master]
+    tags-ignore: "*"
+    paths: 
+      - "**/*.py"
+      - "requirements.txt"
+      - "test-requirements.txt"
+      - "requirements/*.txt"
+      - "typesafety/*"
   pull_request:
     branches: [master]
+    paths: 
+      - "**/*.py"
+      - "requirements.txt"
+      - "test-requirements.txt"
+      - "requirements/*.txt"
+      - "typesafety/*"
 
 jobs:
   lint:
