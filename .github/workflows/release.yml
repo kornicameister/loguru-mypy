@@ -4,6 +4,8 @@ name: Release
 "on":
   push:
     tags: "*"
+  pull_request:
+    branches: master
 
 jobs:
   release:
@@ -25,3 +27,4 @@ jobs:
           body: ${{ steps.generate-changelog.outputs.changelog }}
           draft: true
           prerelease: false
+        if: github.event == 'push.tags'
