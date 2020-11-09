@@ -1,0 +1,27 @@
+---
+name: Release
+
+"on":
+  push:
+    tags: "*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: generate-changelog
+        uses: heinrichreimer/action-github-changelog-generator@v2.1.1
+        with:
+          onlyLastTag: "true"
+          stripHeaders: "true"
+          stripGeneratorNotice: "true"
+      - uses: actions/create-release@v1.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body: ${{ steps.generate-changelog.outputs.changelog }}
+          draft: true
+          prerelease: false
