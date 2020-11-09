@@ -18,8 +18,9 @@ jobs:
           onlyLastTag: "true"
           stripHeaders: "true"
           stripGeneratorNotice: "true"
-      - run: |
-          echo ${{ steps.generate-changelog.outputs.changelog }}
+      - uses: actions/upload-artifact@v2.2.0
+        with:
+          path: /github/workspace/CHANGELOG.md
       - uses: actions/create-release@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
