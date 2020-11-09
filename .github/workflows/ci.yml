@@ -9,8 +9,6 @@ name: CI
       - "test-requirements.txt"
       - "requirements/*.txt"
       - "typesafety/*"
-    paths-ignore: 
-      - "requirements/release.txt"
   pull_request:
     branches: [master]
     paths: 
@@ -19,8 +17,6 @@ name: CI
       - "test-requirements.txt"
       - "requirements/*.txt"
       - "typesafety/*"
-    paths-ignore: 
-      - "requirements/release.txt"
 
 jobs:
   lint:
