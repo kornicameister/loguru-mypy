@@ -4,19 +4,17 @@ name: CI
   push:
     branches: [master]
     tags-ignore: "*"
-    paths: 
+    paths:
       - "**/*.py"
-      - "requirements.txt"
-      - "test-requirements.txt"
-      - "requirements/*.txt"
+      - "requirements/prod/*.txt"
+      - "requirements/dev/*.txt"
       - "typesafety/*"
   pull_request:
     branches: [master]
-    paths: 
+    paths:
       - "**/*.py"
-      - "requirements.txt"
-      - "test-requirements.txt"
-      - "requirements/*.txt"
+      - "requirements/prod/*.txt"
+      - "requirements/dev/*.txt"
       - "typesafety/*"
 
 jobs:
@@ -35,7 +33,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install tox==$(grep tox < test-requirements.txt | awk -F'==' '{print $2}')
+          pip install tox==$(grep tox < requirements/dev/base.txt | awk -F'==' '{print $2}')
       - name: Lint ${{ matrix.linter }}
         run: tox -e ${{ matrix.linter }}
   test:
@@ -57,12 +55,12 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          pip install tox==$(grep tox < test-requirements.txt | awk -F'==' '{print $2}')
+          pip install tox==$(grep tox < requirements/dev/base.txt | awk -F'==' '{print $2}')
           pip install tox-gh-actions
       - name: Patch test dependencies
         run: |
-          awk '!/mypy==/'   requirements/tests.txt > tmp.txt \
-            && mv -f tmp.txt requirements/tests.txt
-          echo "${{ matrix.mypy-version }}" >> requirements/tests.txt
+          awk '!/mypy==/' requirements/dev/tests.txt > tmp.txt \
+            && mv -f tmp.txt requirements/dev/tests.txt
+          echo "${{ matrix.mypy-version }}" >> requirements/dev/tests.txt
       - name: Test
         run: tox
