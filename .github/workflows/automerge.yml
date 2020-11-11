@@ -1,6 +1,6 @@
 ---
 
-name: automerge
+name: Automerge
 
 "on":
   pull_request:
@@ -21,7 +21,7 @@ name: automerge
       - completed
   status: {}
 jobs:
-  automerge:
+  Please:
     runs-on: ubuntu-latest
     steps:
       - name: automerge
