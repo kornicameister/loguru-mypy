@@ -6,13 +6,15 @@ name: CI
     tags-ignore: "*"
     paths:
       - "**/*.py"
-      - "requirements/**/*.txt"
+      - "requirements/prod/*.txt"
+      - "requirements/dev/*.txt"
       - "typesafety/*"
   pull_request:
     branches: [master]
     paths:
       - "**/*.py"
-      - "requirements/**/*.txt"
+      - "requirements/prod/*.txt"
+      - "requirements/dev/*.txt"
       - "typesafety/*"
 
 jobs:
