@@ -1,1 +1,1 @@
-typing-extensions==3.7.4.2 ; python_version < '3.7'
+-r requirements/prod/requires.txt
