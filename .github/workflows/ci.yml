@@ -9,6 +9,7 @@ name: CI
       - "requirements/prod/*.txt"
       - "requirements/dev/*.txt"
       - "typesafety/*"
+      - tox.ini
   pull_request:
     branches: [master]
     paths:
@@ -16,6 +17,7 @@ name: CI
       - "requirements/prod/*.txt"
       - "requirements/dev/*.txt"
       - "typesafety/*"
+      - tox.ini
 
 jobs:
   lint:
