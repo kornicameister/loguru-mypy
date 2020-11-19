@@ -18,6 +18,7 @@ name: CI
       - "requirements/dev/*.txt"
       - "typesafety/*"
       - tox.ini
+      - ".github/workflows/ci.yml"
 
 jobs:
   lint:
