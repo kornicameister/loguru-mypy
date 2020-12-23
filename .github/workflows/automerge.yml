@@ -22,7 +22,7 @@ name: Automerge
   status: {}
 jobs:
   Please:
-    runs-on: ubuntu-latest
+    runs-in: ubuntu-20.04
     steps:
       - name: automerge
         uses: pascalgn/automerge-action@v0.13.0
