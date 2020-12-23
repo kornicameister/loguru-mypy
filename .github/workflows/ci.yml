@@ -21,7 +21,7 @@ name: CI
 
 jobs:
   lint:
-    runs-in: ubuntu-20.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: [3.8]
@@ -39,7 +39,7 @@ jobs:
       - name: Lint ${{ matrix.linter }}
         run: tox -e ${{ matrix.linter }}
   test:
-    runs-in: ubuntu-20.04
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
         python-version: [3.6, 3.7, 3.8]
