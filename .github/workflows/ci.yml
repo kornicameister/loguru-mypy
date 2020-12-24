@@ -18,6 +18,7 @@ name: CI
       - "requirements/dev/*.txt"
       - "typesafety/*"
       - tox.ini
+      - ".github/workflows/ci.yml"
 
 jobs:
   lint:
@@ -64,5 +65,8 @@ jobs:
           awk '!/mypy==/' requirements/dev/tests.txt > tmp.txt \
             && mv -f tmp.txt requirements/dev/tests.txt
           echo "${{ matrix.mypy-version }}" >> requirements/dev/tests.txt
-      - name: Test
-        run: tox
+      - run: tox
+      - uses: codecov/codecov-action@v1.0.15
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          file: coverage.xml
