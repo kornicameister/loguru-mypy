@@ -20,10 +20,13 @@ jobs:
           python-version: 3.9
       - run: pip install --upgrade pip wheel setuptools
       - run: python setup.py bdist --formats=gztar
+      - run: ls -ltr dist/
+        if: github.event == 'pull_request'
       - uses: actions/upload-artifact@v1
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux-x86_64.tar.gz
           path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
+        if: github.event == 'push.tags'
   Windows:
     runs-on: windows-latest
     steps:
@@ -36,10 +39,13 @@ jobs:
           python-version: 3.9
       - run: pip install --upgrade pip wheel setuptools
       - run: python setup.py bdist --formats=gztar
+      - run: ls -ltr dist/
+        if: github.event == 'pull_request'
       - uses: actions/upload-artifact@v1
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-win32-x86_64.zip
           path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
+        if: github.event == 'push.tags'
   Release:
     needs: [Linux, Windows]
     runs-on: ubuntu-latest
@@ -58,10 +64,12 @@ jobs:
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
           path: releases/
+        if: github.event == 'push.tags'
       - uses: actions/download-artifact@master
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-win32.tar.gz
           path: releases/
+        if: github.event == 'push.tags'
       - id: create_release
         uses: actions/create-release@v1.0.1
         env:
