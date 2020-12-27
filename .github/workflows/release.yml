@@ -4,8 +4,6 @@ name: Release
 "on":
   push:
     tags: "*.*.*"
-  pull_request:
-    branches: master
 
 jobs:
   Linux:
@@ -25,7 +23,6 @@ jobs:
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux-x86_64.tar.gz
           path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
-        if: github.event == 'push.tags'
   Windows:
     runs-on: windows-latest
     steps:
@@ -44,7 +41,6 @@ jobs:
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-win-amd64.zip
           path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-win.zip
-        if: github.event == 'push.tags'
   Release:
     needs: [Linux, Windows]
     runs-on: ubuntu-latest
@@ -63,12 +59,10 @@ jobs:
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
           path: releases/
-        if: github.event == 'push.tags'
       - uses: actions/download-artifact@master
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-win.zip
           path: releases/
-        if: github.event == 'push.tags'
       - id: create_release
         uses: actions/create-release@v1
         env:
@@ -79,7 +73,6 @@ jobs:
           body: ${{ steps.generate-changelog.outputs.changelog }}
           draft: false
           prerelease: false
-        if: github.event == 'push.tags'
       - uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -88,7 +81,6 @@ jobs:
           asset_path: releases/loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
           asset_name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
           asset_content_type: application/gzip
-        if: github.event == 'push.tags'
       - uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -97,7 +89,6 @@ jobs:
           asset_path: releases/loguru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
           asset_name: loguru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
           asset_content_type: application/zip
-        if: github.event == 'push.tags'
       - uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -106,4 +97,3 @@ jobs:
           asset_path: CHANGELOG.md
           asset_name: CHANGELOG.md
           asset_content_type: text/markdown
-        if: github.event == 'push.tags'
