@@ -21,7 +21,6 @@ jobs:
       - run: pip install --upgrade pip wheel setuptools
       - run: python setup.py bdist --formats=gztar
       - run: ls -ltr dist/
-        if: github.event == 'pull_request'
       - uses: actions/upload-artifact@v1
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux-x86_64.tar.gz
@@ -40,7 +39,7 @@ jobs:
       - run: pip install --upgrade --user pip wheel setuptools
       - run: python setup.py bdist --formats=gztar
       - run: ls -ltr dist/
-        if: github.event == 'pull_request'
+        shell: bash
       - uses: actions/upload-artifact@v1
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-win32-x86_64.zip
