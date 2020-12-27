@@ -42,6 +42,7 @@ jobs:
           path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
   Release:
     needs: [Linux, Windows]
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - id: tag
