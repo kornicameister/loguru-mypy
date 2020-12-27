@@ -11,14 +11,9 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
-      - run: python -m pip install --upgrade pip setuptools wheel
-      - uses: actions/cache@v2
-        with:
-          key: pip-lint-${{ hashFiles('requirements/*.txt') }}
-          path: ~/.cache/pip
-          restore-keys: |
-            pip-lint-
-      - run: pip install twine
+      - run: |
+          pip install --upgrade pip setuptools wheel
+          pip install --upgrade twine
       - name: Build and publish
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}

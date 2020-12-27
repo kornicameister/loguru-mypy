@@ -32,12 +32,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v2
-        with:
-          key: lint-${{ hashFiles('requirements/*.txt') }}-${{ matrix.python-version }}
-          path: .tox
-          restore-keys: |
-            lint-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
@@ -60,12 +54,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - uses: actions/cache@v2
-        with:
-          key: test-${{ hashFiles('requirements/*.txt') }}-${{ matrix.python-version }}
-          path: .tox
-          restore-keys: |
-            test-
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
