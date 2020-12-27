@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v2
       - id: tag
         run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+          echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
       - uses: actions/setup-python@v2
         with:
           python-version: 3.9
@@ -21,15 +21,15 @@ jobs:
       - run: ls -ltr dist/
       - uses: actions/upload-artifact@v1
         with:
-          name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux-x86_64.tar.gz
-          path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          name: logoru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          path: dist/loguru-mypy-${{ steps.tag.outputs.tag }}.linux-x86_64.tar.gz
   Windows:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
       - id: tag
         run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+          echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
       - uses: actions/setup-python@v2
         with:
           python-version: 3.9
@@ -39,8 +39,8 @@ jobs:
         shell: bash
       - uses: actions/upload-artifact@v1
         with:
-          name: loguru-mypy-${{ steps.tag.outputs.tag }}-win-amd64.zip
-          path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-win.zip
+          name: logoru-mypy-${{ steps.tag.outputs.tag }}-win.zip
+          path: dist/loguru-mypy-${{ steps.tag.outputs.tag }}.win-amd64.zip
   Release:
     needs: [Linux, Windows]
     runs-on: ubuntu-latest
@@ -48,7 +48,7 @@ jobs:
       - uses: actions/checkout@v2
       - id: tag
         run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+          echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
       - id: generate-changelog
         uses: heinrichreimer/action-github-changelog-generator@v2.1.1
         with:
