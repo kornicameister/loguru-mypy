@@ -37,13 +37,13 @@ jobs:
         with:
           python-version: 3.9
       - run: pip install --upgrade --user pip wheel setuptools
-      - run: python setup.py bdist --formats=gztar
+      - run: python setup.py bdist --formats=zip
       - run: ls -ltr dist/
         shell: bash
       - uses: actions/upload-artifact@v1
         with:
-          name: loguru-mypy-${{ steps.tag.outputs.tag }}-win32-x86_64.zip
-          path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
+          name: loguru-mypy-${{ steps.tag.outputs.tag }}-win-amd64.zip
+          path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-win.zip
         if: github.event == 'push.tags'
   Release:
     needs: [Linux, Windows]
@@ -66,7 +66,7 @@ jobs:
         if: github.event == 'push.tags'
       - uses: actions/download-artifact@master
         with:
-          name: loguru-mypy-${{ steps.tag.outputs.tag }}-win32.tar.gz
+          name: loguru-mypy-${{ steps.tag.outputs.tag }}-win.zip
           path: releases/
         if: github.event == 'push.tags'
       - id: create_release
