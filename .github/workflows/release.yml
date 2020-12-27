@@ -1,0 +1,99 @@
+---
+name: Release
+
+"on":
+  push:
+    tags: "*.*.*"
+
+jobs:
+  Linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: tag
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - run: pip install --upgrade pip wheel setuptools
+      - run: python setup.py bdist --formats=gztar
+      - run: ls -ltr dist/
+      - uses: actions/upload-artifact@v1
+        with:
+          name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux-x86_64.tar.gz
+          path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
+  Windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: tag
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - run: pip install --upgrade --user pip wheel setuptools
+      - run: python setup.py bdist --formats=zip
+      - run: ls -ltr dist/
+        shell: bash
+      - uses: actions/upload-artifact@v1
+        with:
+          name: loguru-mypy-${{ steps.tag.outputs.tag }}-win-amd64.zip
+          path: releases/logoru-mypy-${{ steps.tag.outputs.tag }}-win.zip
+  Release:
+    needs: [Linux, Windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - id: tag
+        run: |
+          echo ::set-output name=tag::${GITHUB_REF#refs/tags/}
+      - id: generate-changelog
+        uses: heinrichreimer/action-github-changelog-generator@v2.1.1
+        with:
+          onlyLastTag: "true"
+          stripHeaders: "true"
+          stripGeneratorNotice: "true"
+      - uses: actions/download-artifact@master
+        with:
+          name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          path: releases/
+      - uses: actions/download-artifact@master
+        with:
+          name: loguru-mypy-${{ steps.tag.outputs.tag }}-win.zip
+          path: releases/
+      - id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          release_name: ${{ steps.tag.outputs.tag }}
+          body: ${{ steps.generate-changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+      - uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: releases/loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          asset_name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          asset_content_type: application/gzip
+      - uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: releases/loguru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
+          asset_name: loguru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
+          asset_content_type: application/zip
+      - uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: CHANGELOG.md
+          asset_name: CHANGELOG.md
+          asset_content_type: text/markdown
