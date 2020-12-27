@@ -80,7 +80,7 @@ jobs:
           draft: false
           prerelease: false
         if: github.event == 'push.tags'
-      - uses: actions/upload-release-assets@v1.0.2
+      - uses: actions/upload-release-assets@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
