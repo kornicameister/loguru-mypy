@@ -3,97 +3,115 @@ name: Release
 
 "on":
   push:
-    tags: "*.*.*"
+    tags: "v*.*.*"
 
 jobs:
   Linux:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - id: tag
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get tag
+        id: tag
         run: |
           echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
-      - uses: actions/setup-python@v2
+      - name: Setup python
+        uses: actions/setup-python@v2
         with:
           python-version: 3.9
-      - run: pip install --upgrade pip wheel setuptools
-      - run: python setup.py bdist --formats=gztar
-      - run: ls -ltr dist/
-      - uses: actions/upload-artifact@v1
+      - name: Upgrade packages
+        run: |
+          pip install --upgrade pip wheel setuptools
+          pip install --upgrade wheel setuptools
+      - name: Build tarball
+        run: python setup.py bdist --formats=gztar --plat-name linux
+      - name: Upload tarball
+        uses: actions/upload-artifact@v2
         with:
-          name: logoru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
-          path: dist/loguru-mypy-${{ steps.tag.outputs.tag }}.linux-x86_64.tar.gz
-  Windows:
-    runs-on: windows-latest
+          name: linux-tarball
+          path: ./dist/loguru-mypy-${{ steps.tag.outputs.tag }}.linux.tar.gz
+          if-no-files-found: error
+          retention-days: 1
+  GH:
+    needs:
+      - Linux
+    runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
-      - id: tag
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Get tag
+        id: tag
         run: |
           echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - run: pip install --upgrade --user pip wheel setuptools
-      - run: python setup.py bdist --formats=zip
-      - run: ls -ltr dist/
-        shell: bash
-      - uses: actions/upload-artifact@v1
-        with:
-          name: logoru-mypy-${{ steps.tag.outputs.tag }}-win.zip
-          path: dist/loguru-mypy-${{ steps.tag.outputs.tag }}.win-amd64.zip
-  Release:
-    needs: [Linux, Windows]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - id: tag
-        run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
-      - id: generate-changelog
+      - name: Create release directory
+        run: mkdir -p release/
+      - name: Generator changelog
+        id: generate-changelog
         uses: heinrichreimer/action-github-changelog-generator@v2.1.1
         with:
-          onlyLastTag: "true"
-          stripHeaders: "true"
-          stripGeneratorNotice: "true"
-      - uses: actions/download-artifact@master
+          token: ${{ secrets.GITHUB_TOKEN }}
+          onlyLastTag: true
+          stripHeaders: true
+          stripGeneratorNotice: true
+          project: loguru-mypy
+          output: release/CHANGELOG.md
+      - name: Download Linux tarball
+        uses: actions/download-artifact@v2
         with:
-          name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
-          path: releases/
-      - uses: actions/download-artifact@master
-        with:
-          name: loguru-mypy-${{ steps.tag.outputs.tag }}-win.zip
-          path: releases/
-      - id: create_release
+          name: linux-tarball
+          path: release/
+      - name: List release content
+        run: ls -ltr release/
+      - name: Create GH release
+        id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          release_name: ${{ steps.tag.outputs.tag }}
-          body: ${{ steps.generate-changelog.outputs.changelog }}
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
           draft: false
           prerelease: false
-      - uses: actions/upload-release-asset@v1.0.2
+      - name: Upload Linux tarball
+        uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: releases/loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
-          asset_name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
+          asset_path: release/loguru-mypy-${{ steps.tag.outputs.tag }}.linux.tar.gz
+          asset_name: loguru-mypy-${{ steps.tag.outputs.tag }}.linux.tar.gz
           asset_content_type: application/gzip
-      - uses: actions/upload-release-asset@v1.0.2
+      - name: Upload CHANGELOG.md
+        uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: releases/loguru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
-          asset_name: loguru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
-          asset_content_type: application/zip
-      - uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: CHANGELOG.md
+          asset_path: release/CHANGELOG.md
           asset_name: CHANGELOG.md
           asset_content_type: text/markdown
+      - name: Upload README.md
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: README.md
+          asset_name: README.md
+          asset_content_type: text/markdown
+  PyPi:
+    needs:
+      - GH
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+      - run: |
+          pip install --upgrade pip
+          pip install --upgrade setuptools wheel twine
+      - name: Build and publish
+        env:
+          TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        run: |
+          python setup.py twine --commit --rebuild --egg=all --sdist=all
