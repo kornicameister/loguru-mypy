@@ -47,7 +47,7 @@ jobs:
         run: mkdir -p release/
       - name: Generator changelog
         id: generate-changelog
-        uses: heinrichreimer/action-github-changelog-generator@v2.1.1
+        uses: heinrichreimer/action-github-changelog-generator@v2.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           onlyLastTag: true
