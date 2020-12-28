@@ -61,8 +61,18 @@ jobs:
           pip install tox-gh-actions
       - name: Patch test dependencies
         run: |
+          # remove mypy and replace with compatible version
           awk '!/mypy==/' requirements/dev/tests.txt > tmp.txt \
             && mv -f tmp.txt requirements/dev/tests.txt
+          # pytest-mypy-plugins requires different mypy versions
+          # it is removed from here and later on installed manually
+          # with appropriate match
+          awk '!/pytest-mypy-plugins==/' requirements/dev/tests.txt > tmp.txt \
+            && mv -f tmp.txt requirements/dev/tests.txt
+
+          # append versions, mypy is leading since pytest-mypy-plugins is
+          # just test runner
           echo "${{ matrix.mypy-version }}" >> requirements/dev/tests.txt
+          echo "pytest-mypy-plugins" >> requirements/dev/tests.txt
       - name: Test
         run: tox
