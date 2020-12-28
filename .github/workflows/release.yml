@@ -23,26 +23,9 @@ jobs:
         with:
           name: logoru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
           path: dist/loguru-mypy-${{ steps.tag.outputs.tag }}.linux-x86_64.tar.gz
-  Windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v2
-      - id: tag
-        run: |
-          echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
-      - uses: actions/setup-python@v2
-        with:
-          python-version: 3.9
-      - run: pip install --upgrade --user pip wheel setuptools
-      - run: python setup.py bdist --formats=zip
-      - run: ls -ltr dist/
-        shell: bash
-      - uses: actions/upload-artifact@v1
-        with:
-          name: logoru-mypy-${{ steps.tag.outputs.tag }}-win.zip
-          path: dist/loguru-mypy-${{ steps.tag.outputs.tag }}.win-amd64.zip
   Release:
-    needs: [Linux, Windows]
+    needs:
+      - Linux
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -81,14 +64,6 @@ jobs:
           asset_path: releases/loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
           asset_name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
           asset_content_type: application/gzip
-      - uses: actions/upload-release-asset@v1.0.2
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: releases/loguru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
-          asset_name: loguru-mypy-${{ steps.tag.outputs.tag }}-win32.zip
-          asset_content_type: application/zip
       - uses: actions/upload-release-asset@v1.0.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
