@@ -19,7 +19,7 @@ jobs:
       - run: pip install --upgrade pip wheel setuptools
       - run: python setup.py bdist --formats=gztar
       - run: ls -ltr dist/
-      - uses: actions/upload-artifact@v1
+      - uses: actions/upload-artifact@v2.2.1
         with:
           name: loguru-mypy-${{ steps.tag.outputs.tag }}-linux.tar.gz
           path: dist/loguru-mypy-${{ steps.tag.outputs.tag }}.linux-x86_64.tar.gz
