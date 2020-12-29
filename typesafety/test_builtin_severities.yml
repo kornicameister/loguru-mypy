@@ -45,7 +45,7 @@
     from loguru import logger as LOG
 
     LOG.info(
-      'I am lenghty message here produced at {d} '
+      'I am lengthy message here produced at {d} '
       'via {} using magic',
       __name__,
       d=datetime.utcnow(),
