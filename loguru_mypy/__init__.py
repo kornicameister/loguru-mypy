@@ -7,7 +7,9 @@ from mypy.errorcodes import ErrorCode
 from mypy.nodes import (
     CallExpr,
     Expression,
+    FloatExpr,
     FuncDef,
+    IntExpr,
     LambdaExpr,
     MemberExpr,
     NameExpr,
@@ -96,9 +98,14 @@ def _loguru_logger_call_handler(
     log_msg_expr = ctx.args[0][0]
     logger_opts = loggers.get(ctx.type) or DEFAULT_OPTS
 
-    assert isinstance(log_msg_expr, StrExpr), type(log_msg_expr)
-
-    _check_str_format_call(log_msg_expr, ctx)
+    if isinstance(log_msg_expr, StrExpr):
+        _check_str_format_call(log_msg_expr, ctx)
+    elif isinstance(log_msg_expr, (IntExpr, FloatExpr)):
+        # nothing to be done, this is valid log
+        # and callee is not expected to provide anything useful over here
+        return ctx.default_return_type
+    else:
+        raise TypeError(f'No idea (yet) how to handle {type(log_msg_expr)}')
 
     if logger_opts.lazy:
         # collect call args/kwargs

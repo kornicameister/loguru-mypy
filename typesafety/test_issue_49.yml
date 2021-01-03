@@ -1,0 +1,9 @@
+---
+- case: numbers
+  main: |
+    from loguru import logger
+
+    logger.info(123)
+    logger.debug(123.3)
+    logger.trace(1)
+    logger.error(.3)
