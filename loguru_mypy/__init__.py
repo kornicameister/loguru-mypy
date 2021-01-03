@@ -99,7 +99,7 @@ def _loguru_logger_call_handler(
     logger_opts = loggers.get(ctx.type) or DEFAULT_OPTS
 
     if isinstance(log_msg_expr, StrExpr):
-    _check_str_format_call(log_msg_expr, ctx)
+        _check_str_format_call(log_msg_expr, ctx)
     elif isinstance(log_msg_expr, (IntExpr, FloatExpr)):
         # nothing to be done, this is valid log
         # and callee is not expected to provide anything useful over here
