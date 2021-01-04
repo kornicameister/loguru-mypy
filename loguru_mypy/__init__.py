@@ -52,7 +52,10 @@ NAME_TO_BOOL = {
 }  # type: te.Final
 
 
-def _check_str_format_call(log_msg_expr: StrExpr, ctx: MethodContext) -> None:
+def _check_str_format_call(
+    log_msg_expr: t.Union[StrExpr, NameExpr],
+    ctx: MethodContext,
+) -> None:
     """ Taps into mypy to typecheck something like this:
 
         ```py
@@ -98,7 +101,7 @@ def _loguru_logger_call_handler(
     log_msg_expr = ctx.args[0][0]
     logger_opts = loggers.get(ctx.type) or DEFAULT_OPTS
 
-    if isinstance(log_msg_expr, StrExpr):
+    if isinstance(log_msg_expr, (StrExpr, NameExpr)):
         _check_str_format_call(log_msg_expr, ctx)
     elif isinstance(log_msg_expr, (IntExpr, FloatExpr)):
         # nothing to be done, this is valid log
@@ -107,7 +110,7 @@ def _loguru_logger_call_handler(
     else:
         raise TypeError(f'No idea (yet) how to handle {type(log_msg_expr)}')
 
-    if logger_opts.lazy:
+    if logger_opts.lazy and isinstance(log_msg_expr, StrExpr):
         # collect call args/kwargs
         # due to funky structure mypy offers here, it's easier
         # to beg for forgiveness here

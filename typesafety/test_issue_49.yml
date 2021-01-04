@@ -7,3 +7,51 @@
     logger.debug(123.3)
     logger.trace(1)
     logger.error(.3)
+- case: variables
+  parametrized:
+    - level: info
+    - level: debug
+    - level: warning
+    - level: error
+    - level: trace
+    - level: exception
+  main: |
+    from loguru import logger
+
+    foo = "bar"
+    logger.{{ level }}(foo)
+- case: variables__type-checked__wrong
+  main: |
+    from loguru import logger
+    from typing_extensions import Final
+
+    foo: Final = "bar"
+    logger.info(foo, 1)
+  out: |
+    main:5: error: Not all arguments converted during string formatting  [str-format]
+- case: variables__type-checked__correct
+  main: |
+    from loguru import logger
+    from typing_extensions import Final
+
+    foo: Final = "bar {}"
+    logger.info(foo, 1)
+- case: variables__mypy_cant_tell
+  main: |
+    from loguru import logger
+    from typing_extensions import Final
+
+    foo = "bar"
+    logger.info(foo, 1)  # This is wrong but mypy is at a loss
+- case: variables__type-checked__non-string
+  main: |
+    from loguru import logger
+    from typing_extensions import Final
+
+    foo: Final = 123.4
+    logger.info(foo, 1)
+  out: |
+    main:5: error: No overload variant of "info" of "Logger" matches argument types "float", "int"  [call-overload]
+    main:5: note:     <1 more non-matching overload not shown>
+    main:5: note:     def info(__self, str, *args: Any, **kwargs: Any) -> None
+    main:5: note: Possible overload variant:
