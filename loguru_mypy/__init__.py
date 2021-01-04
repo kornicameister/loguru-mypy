@@ -108,7 +108,11 @@ def _loguru_logger_call_handler(
         # and callee is not expected to provide anything useful over here
         return ctx.default_return_type
     else:
-        raise TypeError(f'No idea (yet) how to handle {type(log_msg_expr)}')
+        ctx.api.msg.note(
+            f'The loguru plugin cannot handle {type(log_msg_expr)} (yet)',
+            context=log_msg_expr,
+        )
+        return ctx.default_return_type
 
     if logger_opts.lazy and isinstance(log_msg_expr, StrExpr):
         # collect call args/kwargs
