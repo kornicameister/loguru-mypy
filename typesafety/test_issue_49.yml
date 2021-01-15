@@ -7,7 +7,7 @@
     logger.debug(123.3)
     logger.trace(1)
     logger.error(.3)
-- case: variables
+- case: variables_str_no_args
   parametrized:
     - level: info
     - level: debug
