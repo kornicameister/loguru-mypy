@@ -7,6 +7,13 @@
     logger.debug(123.3)
     logger.trace(1)
     logger.error(.3)
+- case: containers
+  main: |
+    from loguru import logger
+
+    logger.info(["096", 682, 173, 3125])
+    logger.debug({"093": "Red Sea Object", 55: ["unknown"], 106: "The Old Man"})
+    logger.debug({914, "taboo", 3008, 999})
 - case: variables_str_no_args
   parametrized:
     - level: info

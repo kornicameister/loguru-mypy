@@ -7,9 +7,7 @@ from mypy.errorcodes import ErrorCode
 from mypy.nodes import (
     CallExpr,
     Expression,
-    FloatExpr,
     FuncDef,
-    IntExpr,
     LambdaExpr,
     MemberExpr,
     NameExpr,
@@ -37,6 +35,11 @@ ERROR_BAD_KWARG: te.Final[ErrorCode] = ErrorCode(
     'logger-kwarg',
     'Named argument of loguru handler is not valid for given message',
     'loguru',
+)
+NOTE_EDGE_CASE: te.Final[str] = (
+    'Congratulations!'
+    'You have found an edge case in the loguru plugin.'
+    'Please open an issue :)'
 )
 
 
@@ -98,38 +101,34 @@ def _loguru_logger_call_handler(
     loggers: t.Dict[ProperType, Opts],
     ctx: MethodContext,
 ) -> Type:
-    log_msg_expr = ctx.args[0][0]
+    # Mypy has validated the call before handing it over to us
+    # So it's passing the context parsed according to loguru's method signature
+    # (Yes it's a bit funky)
+    try:
+        # (__self, __message: str, *args: Any, **kwargs: Any) -> None
+        [[log_msg_expr], args, kwargs] = ctx.args
+    except ValueError:
+        # (__self, __message: Any) -> None
+        [[log_msg_expr]] = ctx.args
+        args = []
+        kwargs = []
+
     logger_opts = loggers.get(ctx.type) or DEFAULT_OPTS
 
     if isinstance(log_msg_expr, (StrExpr, NameExpr)):
         _check_str_format_call(log_msg_expr, ctx)
-    elif isinstance(log_msg_expr, (IntExpr, FloatExpr)):
-        # nothing to be done, this is valid log
+    elif not args and not kwargs:
+        # Single argument, loguru will str() it, so nothing to be done
         # and callee is not expected to provide anything useful over here
         return ctx.default_return_type
     else:
         ctx.api.msg.note(
-            f'The loguru plugin cannot handle {type(log_msg_expr)} (yet)',
+            NOTE_EDGE_CASE,
             context=log_msg_expr,
         )
         return ctx.default_return_type
 
     if logger_opts.lazy and isinstance(log_msg_expr, StrExpr):
-        # collect call args/kwargs
-        # due to funky structure mypy offers here, it's easier
-        # to beg for forgiveness here
-        try:
-            call_args = ctx.args[1]
-        except IndexError:
-            call_args = []
-        try:
-            call_kwargs = {
-                kwarg_name: ctx.args[2][idx]
-                for idx, kwarg_name in enumerate(ctx.arg_names[2])
-            }
-        except IndexError:
-            call_kwargs = {}
-
         # collect args/kwargs from string interpolation
         log_msg_value: str = log_msg_expr.value
         log_msg_expected_kwargs = []
@@ -139,7 +138,7 @@ def _loguru_logger_call_handler(
             else:
                 log_msg_expected_kwargs.append(res[1].strip())
 
-            for call_pos, call_arg in enumerate(call_args):
+            for call_pos, call_arg in enumerate(args):
                 if isinstance(call_arg, LambdaExpr) and call_arg.arguments:
                     ctx.api.msg.fail(
                         f'Expected 0 arguments for <lambda>: {call_pos} arg',
@@ -154,6 +153,10 @@ def _loguru_logger_call_handler(
                         code=ERROR_BAD_ARG,
                     )
 
+        call_kwargs = {
+            kwarg_name: kwargs[idx]
+            for idx, kwarg_name in enumerate(ctx.arg_names[2])
+        } if kwargs else {}
         for log_msg_kwarg in log_msg_expected_kwargs:
             maybe_kwarg_expr = call_kwargs.pop(log_msg_kwarg, None)
             if isinstance(maybe_kwarg_expr, LambdaExpr) and maybe_kwarg_expr.arguments:
