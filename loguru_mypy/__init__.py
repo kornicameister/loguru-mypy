@@ -164,7 +164,7 @@ def _loguru_logger_call_handler(
             for idx, kwarg_name in enumerate(ctx.arg_names[2])
         } if call_kwargs else {}
         for log_msg_kwarg in log_msg_expected_kwargs:
-            maybe_kwarg_expr = call_named_kwargs.pop(log_msg_kwarg)
+            maybe_kwarg_expr = call_named_kwargs.pop(log_msg_kwarg, None)
             if isinstance(maybe_kwarg_expr, LambdaExpr) and maybe_kwarg_expr.arguments:
                 ctx.api.msg.fail(
                     f'Expected 0 arguments for <lambda>: {log_msg_kwarg} kwarg',
