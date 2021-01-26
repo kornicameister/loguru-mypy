@@ -11,7 +11,7 @@ A fancy plugin to boost up your logging with [loguru](https://github.com/Delgan/
 
 ## mypy compatibility
 
-`logoru-mypy` should compatible with `mypy==0.770` and upwards.
+`logoru-mypy` should be compatible with `mypy>=0.770`.
 
 ## Installation
 
