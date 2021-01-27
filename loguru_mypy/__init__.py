@@ -97,10 +97,9 @@ def _check_str_format_call(
         )
 
 
-def _loguru_logger_call_handler(
-    loggers: t.Dict[ProperType, Opts],
+def _unpack_call_arguments(
     ctx: MethodContext,
-) -> Type:
+) -> t.Tuple[Expression, t.Sequence[Expression], t.Sequence[Expression]]:
     # Mypy has validated the call before handing it over to us
     # So it's passing the context parsed according to loguru's method signature
     # (Yes it's a bit funky)
@@ -112,25 +111,32 @@ def _loguru_logger_call_handler(
         [[log_msg_expr]] = ctx.args
         args = []
         kwargs = []
+    return log_msg_expr, args, kwargs
 
-    logger_opts = loggers.get(ctx.type) or DEFAULT_OPTS
 
-    if isinstance(log_msg_expr, (StrExpr, NameExpr)):
-        _check_str_format_call(log_msg_expr, ctx)
-    elif not args and not kwargs:
+def _loguru_logger_call_handler(
+    loggers: t.Dict[ProperType, Opts],
+    ctx: MethodContext,
+) -> Type:
+    call_msg, call_args, call_kwargs = _unpack_call_arguments(ctx)
+
+    if isinstance(call_msg, (StrExpr, NameExpr)):
+        _check_str_format_call(call_msg, ctx)
+    elif not (call_args or call_kwargs):
         # Single argument, loguru will str() it, so nothing to be done
         # and callee is not expected to provide anything useful over here
         return ctx.default_return_type
     else:
         ctx.api.msg.note(
             NOTE_EDGE_CASE,
-            context=log_msg_expr,
+            context=call_msg,
         )
         return ctx.default_return_type
 
-    if logger_opts.lazy and isinstance(log_msg_expr, StrExpr):
+    logger_opts = loggers.get(ctx.type, DEFAULT_OPTS)
+    if logger_opts.lazy and isinstance(call_msg, StrExpr):
         # collect args/kwargs from string interpolation
-        log_msg_value: str = log_msg_expr.value
+        log_msg_value: str = call_msg.value
         log_msg_expected_kwargs = []
         for res in string.Formatter().parse(log_msg_value):
             if res[1] is None:
@@ -138,7 +144,7 @@ def _loguru_logger_call_handler(
             else:
                 log_msg_expected_kwargs.append(res[1].strip())
 
-            for call_pos, call_arg in enumerate(args):
+            for call_pos, call_arg in enumerate(call_args):
                 if isinstance(call_arg, LambdaExpr) and call_arg.arguments:
                     ctx.api.msg.fail(
                         f'Expected 0 arguments for <lambda>: {call_pos} arg',
@@ -153,12 +159,12 @@ def _loguru_logger_call_handler(
                         code=ERROR_BAD_ARG,
                     )
 
-        call_kwargs = {
-            kwarg_name: kwargs[idx]
+        call_named_kwargs = {
+            kwarg_name: call_kwargs[idx]
             for idx, kwarg_name in enumerate(ctx.arg_names[2])
-        } if kwargs else {}
+        } if call_kwargs else {}
         for log_msg_kwarg in log_msg_expected_kwargs:
-            maybe_kwarg_expr = call_kwargs.pop(log_msg_kwarg, None)
+            maybe_kwarg_expr = call_named_kwargs.pop(log_msg_kwarg, None)
             if isinstance(maybe_kwarg_expr, LambdaExpr) and maybe_kwarg_expr.arguments:
                 ctx.api.msg.fail(
                     f'Expected 0 arguments for <lambda>: {log_msg_kwarg} kwarg',
