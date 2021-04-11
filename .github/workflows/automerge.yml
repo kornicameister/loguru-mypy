@@ -26,7 +26,7 @@ jobs:
       - name: automerge
         uses: pascalgn/automerge-action@v0.13.1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT }}
           MERGE_REMOVE_LABELS: automerge
           MERGE_METHOD: squash
           MERGE_DELETE_BRANCH: true
