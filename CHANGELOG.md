@@ -19,6 +19,7 @@
 - \[refactor\] Pull out arguments unpacking to function [\#88](https://github.com/kornicameister/loguru-mypy/pull/88)
 - Bump pytest to 6.2.2 [\#87](https://github.com/kornicameister/loguru-mypy/pull/87)
 - Add mypy==0.800 [\#86](https://github.com/kornicameister/loguru-mypy/pull/86)
+- Accept Any Single Argument [\#81](https://github.com/kornicameister/loguru-mypy/pull/81)
 - Accept variables \(NameExpr\) in loguru calls [\#80](https://github.com/kornicameister/loguru-mypy/pull/80)
 - Accept numbers \(int,float\) for loguru calls [\#79](https://github.com/kornicameister/loguru-mypy/pull/79)
 - Typos fix by misspell-fixer [\#75](https://github.com/kornicameister/loguru-mypy/pull/75)
@@ -37,7 +38,6 @@
 
 **Merged pull requests:**
 
-- Accept Any Single Argument [\#81](https://github.com/kornicameister/loguru-mypy/pull/81)
 - Use ubuntu 20.04 instead of ubuntu-latest [\#71](https://github.com/kornicameister/loguru-mypy/pull/71)
 - Bump pascalgn/automerge-action from v0.12.0 to v0.13.0 [\#70](https://github.com/kornicameister/loguru-mypy/pull/70)
 - Bump lxml from 4.6.1 to 4.6.2 in /requirements/dev [\#68](https://github.com/kornicameister/loguru-mypy/pull/68)
