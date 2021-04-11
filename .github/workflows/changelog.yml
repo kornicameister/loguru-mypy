@@ -4,8 +4,10 @@ name: Changelog Generator
 "on":
   push:
     branches: [master]
+    paths-ignore: CHANGELOG.md
   pull_request:
     branches: [master]
+    paths-ignore: CHANGELOG.md
 
 jobs:
   make_changelog:
