@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2      
+        uses: actions/checkout@v2
         with:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
@@ -52,7 +52,7 @@ jobs:
         id: generate-changelog
         uses: heinrichreimer/action-github-changelog-generator@v2.2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
           base: CHANGELOG.md
           onlyLastTag: true
           stripGeneratorNotice: true
