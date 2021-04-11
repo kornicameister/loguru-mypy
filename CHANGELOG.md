@@ -2,6 +2,12 @@
 
 ## [Unreleased](https://github.com/kornicameister/loguru-mypy/tree/HEAD)
 
+**Fixed bugs:**
+
+- Releases are not working [\#107](https://github.com/kornicameister/loguru-mypy/issues/107)
+
+## [v0.0.4](https://github.com/kornicameister/loguru-mypy/tree/v0.0.4) (2021-04-11)
+
 **Implemented enhancements:**
 
 - Use PAT for changelog operations [\#109](https://github.com/kornicameister/loguru-mypy/pull/109)
