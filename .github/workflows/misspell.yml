@@ -13,6 +13,6 @@ jobs:
       - uses: sobolevn/misspell-fixer-action@0.1.0
       - uses: peter-evans/create-pull-request@v3.8.2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT }}
           commit-message: "Fixes by misspell-fixer"
           title: "Typos fix by misspell-fixer"
