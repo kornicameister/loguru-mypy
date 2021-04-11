@@ -1,6 +1,6 @@
 # Changelog
 
-## [v0.0.4](https://github.com/kornicameister/loguru-mypy/tree/v0.0.4) (2021-04-11)
+## [Unreleased](https://github.com/kornicameister/loguru-mypy/tree/HEAD)
 
 **Implemented enhancements:**
 
@@ -15,6 +15,7 @@
 
 **Merged pull requests:**
 
+- Fetch entire history for release [\#106](https://github.com/kornicameister/loguru-mypy/pull/106)
 - Revert "Auto commit change log only if changes detected \(\#104\)" [\#105](https://github.com/kornicameister/loguru-mypy/pull/105)
 - \[refactor\] Pull out arguments unpacking to function [\#88](https://github.com/kornicameister/loguru-mypy/pull/88)
 - Bump pytest to 6.2.2 [\#87](https://github.com/kornicameister/loguru-mypy/pull/87)
