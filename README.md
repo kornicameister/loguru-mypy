@@ -12,6 +12,9 @@ A fancy plugin to boost up your logging with [loguru](https://github.com/Delgan/
 ## mypy compatibility
 
 `logoru-mypy` should be compatible with `mypy>=0.770`.
+Currently there is no limit as far as the compatibility can go. If you are interested to see
+how far `loguru_mypy` goes you can visit [CI/CD action](./.github/workflows/ci.yml) and check its
+matrix.
 
 ## Installation
 
