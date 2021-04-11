@@ -1,28 +1,28 @@
 ---
 version: 2
 updates:
-- package-ecosystem: github-actions
-  directory: "/"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 2
-  labels:
-    - dependabot
-    - automerge
-- package-ecosystem: pip
-  directory: "requirements/prod"
-  schedule:
-    interval: monthly
-  open-pull-requests-limit: 2
-  labels:
-    - dependabot
-    - pip
-- package-ecosystem: pip
-  directory: "requirements/dev"
-  schedule:
-    interval: monthly
-  open-pull-requests-limit: 2
-  labels:
-    - dependabot
-    - pip
-    - automerge
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 2
+    labels:
+      - dependabot
+      - automerge
+  - package-ecosystem: pip
+    directory: "requirements/prod"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+    labels:
+      - dependabot
+      - requirements
+  - package-ecosystem: pip
+    directory: "requirements/dev"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 2
+    labels:
+      - dependabot
+      - test-requirements
+      - automerge

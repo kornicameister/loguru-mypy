@@ -54,6 +54,7 @@ jobs:
           stripHeaders: true
           stripGeneratorNotice: true
           project: loguru-mypy
+          excludeLabels: dependabot,test-requirements,wontfix
           output: release/CHANGELOG.md
       - name: Download Linux tarball
         uses: actions/download-artifact@v2
