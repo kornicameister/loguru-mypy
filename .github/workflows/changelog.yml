@@ -1,0 +1,30 @@
+---
+name: Changelog Generator
+
+"on":
+  push:
+    branches: [master]
+
+jobs:
+  make_changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Generate changelog
+        uses: heinrichreimer/action-github-changelog-generator@v2.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          stripHeaders: true
+          stripGeneratorNotice: true
+          unreleased: true
+          issues: true
+          pullRequests: true
+          prWoLabels: true
+          excludeLabels: dependabot,test-requirements,wontfix
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Update Changelog
+          file_pattern: CHANGELOG.md
