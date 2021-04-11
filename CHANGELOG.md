@@ -15,6 +15,7 @@
 
 **Merged pull requests:**
 
+- Prevent circular updated for changelog [\#108](https://github.com/kornicameister/loguru-mypy/pull/108)
 - Fetch entire history for release [\#106](https://github.com/kornicameister/loguru-mypy/pull/106)
 - Revert "Auto commit change log only if changes detected \(\#104\)" [\#105](https://github.com/kornicameister/loguru-mypy/pull/105)
 - \[refactor\] Pull out arguments unpacking to function [\#88](https://github.com/kornicameister/loguru-mypy/pull/88)
