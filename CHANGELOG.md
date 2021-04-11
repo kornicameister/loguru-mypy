@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Add mypy==0.812 to CI matrix [\#103](https://github.com/kornicameister/loguru-mypy/pull/103)
 - Enable push to protected branch [\#102](https://github.com/kornicameister/loguru-mypy/pull/102)
 - Generate changelog for each commit [\#101](https://github.com/kornicameister/loguru-mypy/pull/101)
 
@@ -42,7 +43,6 @@
 - Setup requirements for automerge [\#64](https://github.com/kornicameister/loguru-mypy/pull/64)
 - Be specific when tox runs [\#63](https://github.com/kornicameister/loguru-mypy/pull/63)
 - New releases schema with changelog generator [\#62](https://github.com/kornicameister/loguru-mypy/pull/62)
-- Add mypy compatibility note [\#61](https://github.com/kornicameister/loguru-mypy/pull/61)
 - Test against several versions of mypy & loguru [\#59](https://github.com/kornicameister/loguru-mypy/pull/59)
 - Leverage mypy to check str.format expressions [\#43](https://github.com/kornicameister/loguru-mypy/pull/43)
 
