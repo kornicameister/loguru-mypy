@@ -37,4 +37,4 @@ jobs:
         with:
           commit_message: Update Changelog
           file_pattern: CHANGELOG.md
-        if: github.event_name == "push"
+        if: github.event_name == 'push'
