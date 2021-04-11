@@ -86,6 +86,7 @@ jobs:
           - mypy==0.780
           - mypy==0.790
           - mypy==0.800
+          - mypy==0.812
           - -e git+https://github.com/python/mypy.git#egg=mypy
     steps:
       - uses: actions/checkout@v2
