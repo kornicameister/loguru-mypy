@@ -15,6 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
+          ref: ${{ github.head_ref }}
           token: ${{ secrets.PAT }}
           fetch-depth: 0
       - name: Generate changelog
@@ -40,4 +41,4 @@ jobs:
           commit_message: Update Changelog
           file_pattern: CHANGELOG.md
           push_options: --force
-        if: github.event_name == 'push'
+        if: github.event_name == 'push' && steps.auto-commit-action.outputs.changes_detected == 'true'
