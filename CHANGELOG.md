@@ -45,7 +45,6 @@
 - Add mypy compatibility note [\#61](https://github.com/kornicameister/loguru-mypy/pull/61)
 - Test against several versions of mypy & loguru [\#59](https://github.com/kornicameister/loguru-mypy/pull/59)
 - Leverage mypy to check str.format expressions [\#43](https://github.com/kornicameister/loguru-mypy/pull/43)
-- Port implementation from loguru PR [\#3](https://github.com/kornicameister/loguru-mypy/pull/3)
 
 ## [v0.0.2](https://github.com/kornicameister/loguru-mypy/tree/v0.0.2) (2020-07-06)
 
@@ -54,6 +53,7 @@
 **Merged pull requests:**
 
 - Track if logger was lazy or not [\#7](https://github.com/kornicameister/loguru-mypy/pull/7)
+- Port implementation from loguru PR [\#3](https://github.com/kornicameister/loguru-mypy/pull/3)
 - Add basic CI based on tox [\#2](https://github.com/kornicameister/loguru-mypy/pull/2)
 - Add action to upload to pypi [\#1](https://github.com/kornicameister/loguru-mypy/pull/1)
 
