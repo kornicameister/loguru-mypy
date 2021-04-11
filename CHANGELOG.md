@@ -19,7 +19,7 @@
 - Accept Any Single Argument [\#81](https://github.com/kornicameister/loguru-mypy/pull/81)
 - Accept variables \(NameExpr\) in loguru calls [\#80](https://github.com/kornicameister/loguru-mypy/pull/80)
 - Accept numbers \(int,float\) for loguru calls [\#79](https://github.com/kornicameister/loguru-mypy/pull/79)
-- Bump pytest-randomly from 3.4.1 to 3.5.0 in /requirements/dev [\#69](https://github.com/kornicameister/loguru-mypy/pull/69)
+- Typos fix by misspell-fixer [\#75](https://github.com/kornicameister/loguru-mypy/pull/75)
 
 ## [v0.0.3](https://github.com/kornicameister/loguru-mypy/tree/v0.0.3) (2020-12-28)
 
@@ -34,9 +34,9 @@
 
 **Merged pull requests:**
 
-- Typos fix by misspell-fixer [\#75](https://github.com/kornicameister/loguru-mypy/pull/75)
 - Use ubuntu 20.04 instead of ubuntu-latest [\#71](https://github.com/kornicameister/loguru-mypy/pull/71)
 - Bump pascalgn/automerge-action from v0.12.0 to v0.13.0 [\#70](https://github.com/kornicameister/loguru-mypy/pull/70)
+- Bump pytest-randomly from 3.4.1 to 3.5.0 in /requirements/dev [\#69](https://github.com/kornicameister/loguru-mypy/pull/69)
 - Bump lxml from 4.6.1 to 4.6.2 in /requirements/dev [\#68](https://github.com/kornicameister/loguru-mypy/pull/68)
 - Add coverage calculation [\#65](https://github.com/kornicameister/loguru-mypy/pull/65)
 - Setup requirements for automerge [\#64](https://github.com/kornicameister/loguru-mypy/pull/64)
