@@ -40,6 +40,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
+          token: ${{ secrets.PAT }}
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Get tag
@@ -106,6 +107,12 @@ jobs:
           asset_path: README.md
           asset_name: README.md
           asset_content_type: text/markdown
+      - name: Commit changelog
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Release ${{ github.ref }}
+          file_pattern: CHANGELOG.md
+          push_options: --force
   PyPi:
     needs:
       - GH
