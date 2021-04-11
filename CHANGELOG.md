@@ -4,6 +4,7 @@
 
 **Implemented enhancements:**
 
+- Use PAT for changelog operations [\#109](https://github.com/kornicameister/loguru-mypy/pull/109)
 - Auto commit change log only if changes detected [\#104](https://github.com/kornicameister/loguru-mypy/pull/104)
 - Add mypy==0.812 to CI matrix [\#103](https://github.com/kornicameister/loguru-mypy/pull/103)
 - Enable push to protected branch [\#102](https://github.com/kornicameister/loguru-mypy/pull/102)
