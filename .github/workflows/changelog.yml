@@ -4,6 +4,8 @@ name: Changelog Generator
 "on":
   push:
     branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   make_changelog:
@@ -23,8 +25,16 @@ jobs:
           pullRequests: true
           prWoLabels: true
           excludeLabels: dependabot,test-requirements,wontfix
+      - name: Upload changelog
+        uses: actions/upload-artifact@v2
+        with:
+          name: CHANGELOG.md
+          path: CHANGELOG.md
+          if-no-files-found: error
+          retention-days: 1
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
           commit_message: Update Changelog
           file_pattern: CHANGELOG.md
+        if: github.event_name == "push"
