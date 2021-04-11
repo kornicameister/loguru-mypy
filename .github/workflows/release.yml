@@ -50,6 +50,7 @@ jobs:
         uses: heinrichreimer/action-github-changelog-generator@v2.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          base: CHANGELOG.md
           onlyLastTag: true
           stripHeaders: true
           stripGeneratorNotice: true
