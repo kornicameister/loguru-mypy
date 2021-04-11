@@ -52,7 +52,6 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           base: CHANGELOG.md
           onlyLastTag: true
-          stripHeaders: true
           stripGeneratorNotice: true
           issues: true
           pullRequests: true

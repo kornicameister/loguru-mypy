@@ -18,7 +18,6 @@ jobs:
         uses: heinrichreimer/action-github-changelog-generator@v2.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          stripHeaders: true
           stripGeneratorNotice: true
           unreleased: true
           issues: true
@@ -28,7 +27,7 @@ jobs:
       - name: Upload changelog
         uses: actions/upload-artifact@v2
         with:
-          name: CHANGELOG.md
+          name: CHANGELOG.zip
           path: CHANGELOG.md
           if-no-files-found: error
           retention-days: 1
