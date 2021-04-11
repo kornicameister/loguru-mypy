@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.PAT }}
       - name: Generate changelog
         uses: heinrichreimer/action-github-changelog-generator@v2.2
         with:
@@ -36,4 +38,5 @@ jobs:
         with:
           commit_message: Update Changelog
           file_pattern: CHANGELOG.md
+          push_options: --force
         if: github.event_name == 'push'
