@@ -54,6 +54,9 @@ jobs:
           onlyLastTag: true
           stripHeaders: true
           stripGeneratorNotice: true
+          issues: true
+          pullRequests: true
+          prWoLabels: true
           project: loguru-mypy
           excludeLabels: dependabot,test-requirements,wontfix
           output: release/CHANGELOG.md
