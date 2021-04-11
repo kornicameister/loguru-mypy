@@ -50,10 +50,14 @@ jobs:
         uses: heinrichreimer/action-github-changelog-generator@v2.2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
+          base: CHANGELOG.md
           onlyLastTag: true
-          stripHeaders: true
           stripGeneratorNotice: true
+          issues: true
+          pullRequests: true
+          prWoLabels: true
           project: loguru-mypy
+          excludeLabels: dependabot,test-requirements,wontfix
           output: release/CHANGELOG.md
       - name: Download Linux tarball
         uses: actions/download-artifact@v2

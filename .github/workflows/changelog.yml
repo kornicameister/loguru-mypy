@@ -1,0 +1,43 @@
+---
+name: Changelog Generator
+
+"on":
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  make_changelog:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          token: ${{ secrets.PAT }}
+          fetch-depth: 0
+      - name: Generate changelog
+        uses: heinrichreimer/action-github-changelog-generator@v2.2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          stripGeneratorNotice: true
+          unreleased: true
+          issues: true
+          pullRequests: true
+          prWoLabels: true
+          excludeLabels: dependabot,test-requirements,wontfix
+      - name: Upload changelog
+        uses: actions/upload-artifact@v2
+        with:
+          name: CHANGELOG.zip
+          path: CHANGELOG.md
+          if-no-files-found: error
+          retention-days: 1
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Update Changelog
+          file_pattern: CHANGELOG.md
+          push_options: --force
+        if: github.event_name == 'push'
