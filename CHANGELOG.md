@@ -49,7 +49,6 @@
 
 - Use ubuntu 20.04 instead of ubuntu-latest [\#71](https://github.com/kornicameister/loguru-mypy/pull/71)
 - Bump pascalgn/automerge-action from v0.12.0 to v0.13.0 [\#70](https://github.com/kornicameister/loguru-mypy/pull/70)
-- Bump lxml from 4.6.1 to 4.6.2 in /requirements/dev [\#68](https://github.com/kornicameister/loguru-mypy/pull/68)
 - Add coverage calculation [\#65](https://github.com/kornicameister/loguru-mypy/pull/65)
 - Setup requirements for automerge [\#64](https://github.com/kornicameister/loguru-mypy/pull/64)
 - Be specific when tox runs [\#63](https://github.com/kornicameister/loguru-mypy/pull/63)
