@@ -16,7 +16,7 @@ jobs:
         run: |
           echo ::set-output name=tag::${GITHUB_REF#refs/tags/v}
       - name: Setup python
-        uses: actions/setup-python@v2.2.2
+        uses: actions/setup-python@v2.3.0
         with:
           python-version: 3.9
       - name: Upgrade packages
@@ -119,7 +119,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2.2.2
+      - uses: actions/setup-python@v2.3.0
       - run: |
           pip install --upgrade pip
           pip install --upgrade setuptools wheel twine
