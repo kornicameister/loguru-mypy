@@ -64,7 +64,7 @@ jobs:
           excludeLabels: dependabot,test-requirements,wontfix
           output: release/CHANGELOG.md
       - name: Download Linux tarball
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v3
         with:
           name: linux-tarball
           path: release/
