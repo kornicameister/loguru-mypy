@@ -31,7 +31,7 @@ jobs:
           prWoLabels: true
           excludeLabels: dependabot,test-requirements,wontfix
       - name: Upload changelog
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: CHANGELOG.zip
           path: CHANGELOG.md
