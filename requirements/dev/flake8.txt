@@ -1,4 +1,4 @@
-flake8==4.0.1
+flake8==5.0.4
 flake8-import-order==0.18.1
 flake8-bugbear==21.3.2
 flake8-commas==2.1.0
