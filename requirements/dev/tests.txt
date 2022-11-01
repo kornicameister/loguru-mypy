@@ -2,7 +2,7 @@ pytest==7.1.2
 pytest-cov==2.11.1
 pytest-watch==4.2.0
 pytest-mypy-plugins==1.9.2
-pytest-randomly==3.11.0
+pytest-randomly==3.12.0
 
 mypy==0.981
 loguru==0.6.0
