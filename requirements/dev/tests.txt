@@ -4,6 +4,6 @@ pytest-watch==4.2.0
 pytest-mypy-plugins==1.9.2
 pytest-randomly==3.11.0
 
-mypy==0.981
+mypy==0.982
 loguru==0.6.0
 
