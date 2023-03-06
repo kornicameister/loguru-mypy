@@ -241,7 +241,7 @@ class UnsupportedMypyVersion(RuntimeError):
 
 
 def plugin(version: str) -> t.Type[LoguruPlugin]:
-    minor = int(version.split('.')[1].replace('+dev', ''))
-    if minor < 770:
+    version_info = tuple(int(v.replace('+dev', '')) for v in version.split('.'))
+    if version_info < (0, 770):
         raise UnsupportedMypyVersion(version)
     return LoguruPlugin
