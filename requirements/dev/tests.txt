@@ -5,5 +5,5 @@ pytest-mypy-plugins==3.0.0
 pytest-randomly==3.15.0
 
 mypy==0.982
-loguru==0.6.0
+loguru==0.7.2
 
