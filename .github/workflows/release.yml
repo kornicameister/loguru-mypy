@@ -108,7 +108,7 @@ jobs:
           asset_name: README.md
           asset_content_type: text/markdown
       - name: Commit changelog
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: Release ${{ github.ref }}
           file_pattern: CHANGELOG.md
