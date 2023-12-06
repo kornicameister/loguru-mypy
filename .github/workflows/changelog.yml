@@ -21,7 +21,7 @@ jobs:
           ref: ${{ github.head_ref }}
           fetch-depth: 0
       - name: Generate changelog
-        uses: heinrichreimer/action-github-changelog-generator@v2.3
+        uses: heinrichreimer/action-github-changelog-generator@v2.4
         with:
           token: ${{ secrets.PAT }}
           stripGeneratorNotice: true
