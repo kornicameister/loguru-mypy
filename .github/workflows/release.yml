@@ -51,7 +51,7 @@ jobs:
         run: mkdir -p release/
       - name: Generator changelog
         id: generate-changelog
-        uses: heinrichreimer/action-github-changelog-generator@v2.3
+        uses: heinrichreimer/action-github-changelog-generator@v2.4
         with:
           token: ${{ secrets.PAT }}
           base: CHANGELOG.md
