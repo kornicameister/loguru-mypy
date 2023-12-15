@@ -26,7 +26,7 @@ jobs:
       - name: Build tarball
         run: python setup.py bdist --formats=gztar --plat-name linux
       - name: Upload tarball
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: linux-tarball
           path: ./dist/loguru-mypy-${{ steps.tag.outputs.tag }}.linux.tar.gz
