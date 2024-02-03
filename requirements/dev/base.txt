@@ -1,2 +1,2 @@
 tox==4.6.4
-setupmeta==3.5.2
+setupmeta==3.6.0
