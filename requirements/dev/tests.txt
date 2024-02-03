@@ -1,5 +1,5 @@
 pytest==7.2.1
-pytest-cov==4.0.0
+pytest-cov==4.1.0
 pytest-watch==4.2.0
 pytest-mypy-plugins==3.0.0
 pytest-randomly==3.15.0
